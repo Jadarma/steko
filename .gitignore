@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+.gradle
+.kotlin
+build/
+!gradle/wrapper/gradle-wrapper.jar
