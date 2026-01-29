@@ -1,0 +1,2 @@
+headers=stb_image_read.h stb_image_write.h
+compilerOpts=-DSTB_IMAGE_IMPLEMENTATION -DSTB_IMAGE_WRITE_IMPLEMENTATION -DSTBI_ONLY_PNG -DSTBI_ONLY_BMP
