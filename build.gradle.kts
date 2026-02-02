@@ -1,5 +1,7 @@
 plugins {
-    kotlin("multiplatform") version "2.3.0"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotest)
+    alias(libs.plugins.ksp)
 }
 
 group = "io.github.jadarma"
@@ -29,4 +31,17 @@ kotlin {
             entryPoint = "io.github.jadarma.steggo.main"
         }
     }
+    sourceSets {
+        nativeTest.dependencies {
+            implementation(libs.kotest.engine)
+            implementation(libs.kotest.assertions)
+        }
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    systemProperty("kotest.framework.config.fqn", "io.github.jadarma.stego.TestConfig")
+
+    logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
+    outputs.upToDateWhen { false }
 }

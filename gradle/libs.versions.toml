@@ -1,0 +1,13 @@
+[versions]
+kotlin = "2.3.0"       # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+kotest = "6.1.2"       # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
+ksp = "2.3.5"          # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
+
+[libraries]
+kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotest = { id = "io.kotest", version.ref = "kotest" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
