@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotest)
     alias(libs.plugins.ksp)
 }
@@ -32,6 +33,13 @@ kotlin {
         }
     }
     sourceSets {
+        nativeMain.dependencies {
+            implementation(libs.kotlin.cryptography.core)
+            implementation(libs.kotlin.cryptography.optimalProvider)
+            implementation(libs.kotlin.io.core)
+            implementation(libs.kotlin.serialization.core)
+            implementation(libs.kotlin.serialization.cbor)
+        }
         nativeTest.dependencies {
             implementation(libs.kotest.engine)
             implementation(libs.kotest.assertions)

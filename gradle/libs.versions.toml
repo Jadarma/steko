@@ -1,13 +1,22 @@
 [versions]
-kotlin = "2.3.0"       # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
-kotest = "6.1.2"       # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
-ksp = "2.3.5"          # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
+kotlin = "2.3.0"                # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+kotest = "6.1.2"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
+ksp = "2.3.5"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
+kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg.cryptography/cryptography-core
+kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
+kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 
 [libraries]
+kotlin-cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "kotlin-cryptography" }
+kotlin-cryptography-optimalProvider = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "kotlin-cryptography" }
+kotlin-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlin-io" }
+kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
+kotlin-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlin-serialization" }
 kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
 [plugins]
-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotest = { id = "io.kotest", version.ref = "kotest" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
