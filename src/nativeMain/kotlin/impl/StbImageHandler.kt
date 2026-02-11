@@ -27,28 +27,45 @@ object StbImageHandler : ImageHandler {
             x = width.ptr,
             y = height.ptr,
             channels_in_file = channels.ptr,
-            desired_channels = 0,
+            desired_channels = 4,
         ) ?: error("Could not read image.")
 
-        val dataLength = width.value * height.value * channels.value
+        val pixelCount = width.value * height.value
+        val data = image.readBytes(pixelCount * 4).asUByteArray()
+
+        val pixels = UIntArray(pixelCount) { index ->
+            var value = 0u
+            repeat(4) { channel ->
+                val channelValue = data[index * 4 + channel].toUInt()
+                value = value.shl(UByte.SIZE_BITS).or(channelValue)
+            }
+            value
+        }
 
         Image(
             width = width.value,
             height = height.value,
-            hasAlphaChannel = channels.value == 4,
-            data = image.readBytes(dataLength)
+            pixels = pixels,
         )
     }
 
     override fun write(image: Image, path: String) = memScoped {
-        val channels = if (image.hasAlphaChannel) 4 else 3
+        val requiresAlphaChannel: Boolean = image.pixels.any { it and 0xFFu != 0xFFu }
+        val channels = if (requiresAlphaChannel) 4 else 3
+
+        val bytes = UByteArray(image.width * image.height * channels) { index ->
+            val pixelValue = image.pixels[index / channels]
+            val pixelChannel = index % channels
+            pixelValue.shr(UByte.SIZE_BITS * (3 - pixelChannel)).toUByte()
+        }
+
         stbi_write_png(
             filename = path,
             w = image.width,
             h = image.height,
             comp = channels,
-            data = image.data.toCValues(),
-            stride_in_bytes = image.width * channels
+            data = bytes.toCValues(),
+            stride_in_bytes = image.width * channels,
         )
         Unit
     }
