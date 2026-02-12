@@ -28,6 +28,8 @@ enum class PayloadType(
 
     internal companion object {
         fun of(payload: Payload): PayloadType = entries.first { payload::class == it.type }
+
+        fun of(value: UByte): PayloadType = entries.first { it.value == value }
     }
 }
 
