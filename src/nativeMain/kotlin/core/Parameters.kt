@@ -22,7 +22,7 @@ import kotlin.math.ceil
  * @property payloadSize   The payload size, in bytes.
  * @property payloadType   The type of payload to read from the image.
  */
-data class Parameters(
+internal data class Parameters(
     val seed: Long,
     val encryptionKey: ByteString,
     val bitmask: UInt,
@@ -33,10 +33,11 @@ data class Parameters(
 ) {
 
     init {
+        require(encryptionKey.size == Cryptography.KEY_SIZE_BYTES) { "Encryption key not valid." }
+        require(bitmask.countOneBits() > 0) { "No bits specified for overwriting." }
         require(payloadOffset >= 0) { "Payload offset cannot be negative." }
         require(payloadSize > 0) { "Payload size must be positive." }
-        require(bitmask.countOneBits() > 0) { "No bits specified for overwriting." }
-        require(Cryptography.isKeyValid(encryptionKey)) { "Encryption key not valid." }
+        require(payloadSize.toLong() * Byte.SIZE_BITS / bitmask.countOneBits() <= Int.MAX_VALUE) { "Payload is too big, it would require more pixels than possible to store." }
     }
 
     companion object {
@@ -44,42 +45,41 @@ data class Parameters(
         /**
          * Generate parameters for encoding or decoding a payload of a given type and size into an image.
          *
-         * @param image   The host image to hide the payload in.
-         * @param size    The size of the payload, in bytes.
-         * @param type    The data type of the payload.
-         * @param bitmask The bits to override for pixel values. Last bit of every color channel by default.
-         * @param noise   Whether to add noise to the remaining pixels. True by default.
+         * @param pixelCount    How many pixels does the host image contain.
+         * @param encryptionKey The key used to decrypt the payload.
+         * @param size          The size of the payload, in bytes.
+         * @param type          The data type of the payload.
+         * @param bitmask       The bits to override for pixel values.
+         * @param noise         Whether to add noise to the remaining pixels.
          *
          * @return A set of encoding parameters valid for the specified use.
          *
          * @throws IllegalArgumentException if either the payload wouldn't fit in the image, or the bitmask is invalid.
          */
         fun generate(
-            image: Image,
+            pixelCount: Int,
+            encryptionKey: ByteString,
             size: Int,
             type: PayloadType,
-            bitmask: UInt = 0x01010100u,
-            noise: Boolean = true,
+            bitmask: UInt,
+            noise: Boolean,
         ): Parameters {
-            val random = Cryptography.secureRandom
-
             val bitCount = bitmask.countOneBits()
             require(bitCount > 0) { "No bits specified for overwriting." }
 
             val requiredBits = (Header.SIZE_BYTES + size.toLong()) * UByte.SIZE_BITS
             val requiredPixels = ceil(requiredBits.toFloat() / bitCount).toInt()
-            val availablePixels = image.pixels.size
-            require(availablePixels >= requiredPixels) {
+            require(pixelCount >= requiredPixels) {
                 "Image is not large enough to hide the payload with the current settings. " +
-                    "At least $requiredPixels are needed, but only $availablePixels are available."
+                    "At least $requiredPixels are needed, but only $pixelCount are available."
             }
 
             return Parameters(
-                seed = random.nextLong(),
-                encryptionKey = Cryptography.generateKey(),
+                seed = Cryptography.secureRandom.nextLong(),
+                encryptionKey = encryptionKey,
                 bitmask = bitmask,
                 noise = noise,
-                payloadOffset = random.nextInt(from = 0, until = availablePixels - requiredPixels),
+                payloadOffset = Cryptography.secureRandom.nextInt(from = 0, until = pixelCount - requiredPixels),
                 payloadSize = size,
                 payloadType = type,
             )
