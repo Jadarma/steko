@@ -5,11 +5,13 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
+import io.github.jadarma.steggo.cli.util.load
 import io.github.jadarma.steggo.cli.util.readFile
+import io.github.jadarma.steggo.cli.util.write
+import io.github.jadarma.steggo.core.Image
 import io.github.jadarma.steggo.core.RawPayload
 import io.github.jadarma.steggo.core.Stego
 import io.github.jadarma.steggo.core.TextPayload
-import io.github.jadarma.steggo.impl.StbImageHandler
 import kotlinx.io.files.SystemFileSystem
 
 /** Subcommand for hiding a payload inside an image file. */
@@ -61,7 +63,7 @@ class HideCommand : CliktCommand("hide") {
             throw UsageError("Passphrase is not implemented. Please use ${terminal.theme.info("--keygen")}")
         }
 
-        val image = StbImageHandler.read(imageFiles.input.toString())
+        val image = Image.load(imageFiles.input)
         val payload = when (val source = payloadSource) {
             is PayloadSource.Message -> TextPayload(source.text)
             is PayloadSource.FromFile -> SystemFileSystem.readFile(source.path).asUByteArray().let(::RawPayload)
@@ -70,6 +72,6 @@ class HideCommand : CliktCommand("hide") {
         val key = Stego.hide(image, payload, encodingOptions.bitmask, encodingOptions.noise)
         echo(key.toString())
 
-        StbImageHandler.write(image, imageFiles.output.toString())
+        image.write(imageFiles.output)
     }
 }

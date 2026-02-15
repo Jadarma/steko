@@ -14,4 +14,6 @@ class Image(
     init {
         require(pixels.size == width * height) { "Pixel count does not match resolution." }
     }
+
+    companion object
 }

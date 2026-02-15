@@ -1,4 +1,4 @@
-package io.github.jadarma.steggo.impl
+package io.github.jadarma.steggo.core
 
 import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import dev.whyoleg.cryptography.CryptographyProvider

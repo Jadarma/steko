@@ -5,15 +5,8 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.*
-import io.github.jadarma.steggo.cli.util.checkDirectory
-import io.github.jadarma.steggo.cli.util.exitError
-import io.github.jadarma.steggo.cli.util.printToStdOut
-import io.github.jadarma.steggo.cli.util.writeFile
-import io.github.jadarma.steggo.core.Key
-import io.github.jadarma.steggo.core.RawPayload
-import io.github.jadarma.steggo.core.Stego
-import io.github.jadarma.steggo.core.TextPayload
-import io.github.jadarma.steggo.impl.StbImageHandler
+import io.github.jadarma.steggo.cli.util.*
+import io.github.jadarma.steggo.core.*
 import kotlinx.io.bytestring.ByteString
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -79,7 +72,7 @@ class ShowCommand : CliktCommand() {
             throw UsageError("Passphrases are not supported yet. Please use ${terminal.theme.info("--key")}")
         }
 
-        val image = StbImageHandler.read(imagePath.toString())
+        val image = Image.load(imagePath)
         val keyValue = runCatching { readln() }.getOrElse { exitError("No key was provided.") }
         val key = runCatching { Key(keyValue) }.getOrElse { exitError("Key is invalid.") }
 
@@ -89,7 +82,7 @@ class ShowCommand : CliktCommand() {
             null -> exitError("Could not find any secret using this key.", 2)
         }
 
-        when(val dir = outputDirectory) {
+        when (val dir = outputDirectory) {
             null -> printToStdOut(data)
             else -> SystemFileSystem.writeFile(Path(dir, "secret.out"), ByteString(data))
         }
