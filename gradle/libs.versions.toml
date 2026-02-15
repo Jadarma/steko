@@ -5,6 +5,7 @@ ksp = "2.3.5"                   # https://mvnrepository.com/artifact/com.google.
 kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg.cryptography/cryptography-core
 kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
 kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
+clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
 
 [libraries]
 kotlin-cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "kotlin-cryptography" }
@@ -14,6 +15,8 @@ kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializat
 kotlin-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlin-serialization" }
 kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+clikt-core = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+clikt-markdown = { module = "com.github.ajalt.clikt:clikt-markdown", version.ref = "clikt" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

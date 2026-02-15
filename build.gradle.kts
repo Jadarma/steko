@@ -32,6 +32,13 @@ kotlin {
             entryPoint = "io.github.jadarma.steggo.main"
         }
     }
+
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xcontext-parameters"
+        )
+    }
+
     sourceSets {
         nativeMain.dependencies {
             implementation(libs.kotlin.cryptography.core)
@@ -39,6 +46,8 @@ kotlin {
             implementation(libs.kotlin.io.core)
             implementation(libs.kotlin.serialization.core)
             implementation(libs.kotlin.serialization.cbor)
+            implementation(libs.clikt.core)
+            implementation(libs.clikt.markdown)
         }
         nativeTest.dependencies {
             implementation(libs.kotest.engine)
