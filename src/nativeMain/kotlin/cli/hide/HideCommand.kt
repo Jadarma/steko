@@ -2,9 +2,10 @@ package io.github.jadarma.steggo.cli.hide
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
+import com.github.ajalt.mordant.terminal.ConfirmationPrompt
+import io.github.jadarma.steggo.cli.util.exitError
 import io.github.jadarma.steggo.cli.util.load
 import io.github.jadarma.steggo.cli.util.readFile
 import io.github.jadarma.steggo.cli.util.write
@@ -56,22 +57,39 @@ class HideCommand : CliktCommand("hide") {
     val encodingOptions by EncodingOptions()
 
     override fun run() {
-        //TODO: Handle passphrase, currently only random key is supported.
-        if (!encodingOptions.randomKey) {
-            throw UsageError("Passphrase is not implemented. Please use ${terminal.theme.info("--keygen")}")
-        }
 
+        val key = getKey()
         val image = Image.load(imageFiles.input)
+
         val payload = when (val source = payloadSource) {
             is PayloadSource.Message -> source.text.encodeToByteArray()
             is PayloadSource.FromFile -> SystemFileSystem.readFile(source.path)
         }
 
-        val key = Key.generate(encodingOptions.bitmask)
         image.hide(key, payload, encodingOptions.noise)
 
         echo(key.toHexString())
 
         image.write(imageFiles.output)
+    }
+
+    private fun getKey(): Key {
+        if (encodingOptions.randomKey) return Key.generate(encodingOptions.bitmask)
+
+        val value = when {
+            terminal.terminalInfo.interactive -> {
+                ConfirmationPrompt.createString(
+                    firstPrompt = "Enter a passphrase",
+                    secondPrompt = "Verify passphrase",
+                    terminal = terminal,
+                    hideInput = true,
+                    valueMismatchMessage = "Passphrases did not match.",
+                ).ask()
+            }
+            !terminal.terminalInfo.inputInteractive -> readlnOrNull()
+            else -> exitError("No input on STDIN given.")
+        } ?: exitError("Could not get credential.")
+
+        return Key.generate(passphrase = value)
     }
 }

@@ -2,9 +2,9 @@ package io.github.jadarma.steggo.cli.show
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.mordant.terminal.prompt
 import io.github.jadarma.steggo.cli.util.*
 import io.github.jadarma.steggo.core.*
 import kotlinx.io.bytestring.ByteString
@@ -67,20 +67,31 @@ class ShowCommand : CliktCommand() {
         .validate { SystemFileSystem.checkDirectory(it) }
 
     override fun run() {
-        // TODO: Handle passphrase. Currently only using keys is supported.
-        if (!isKey) {
-            throw UsageError("Passphrases are not supported yet. Please use ${terminal.theme.info("--key")}")
-        }
-
+        val key = getKey()
         val image = Image.load(imagePath)
-        val keyValue = runCatching { readln() }.getOrElse { exitError("No key was provided.") }
-        val key = runCatching { Key(keyValue) }.getOrElse { exitError("Key is invalid.") }
-
         val data = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
 
         when (val dir = outputDirectory) {
             null -> printToStdOut(data)
             else -> SystemFileSystem.writeFile(Path(dir, "secret.out"), ByteString(data))
+        }
+    }
+
+    /*
+    * Reads the key from _STDIN_, or offers a prompt if in interactive mode.
+    * If it expects a key, will parse it from hexadecimal, otherwise will generate one from the passphrase given.
+    */
+    private fun getKey(): Key {
+        val value = when {
+            isKey -> readlnOrNull()
+            terminal.terminalInfo.interactive -> terminal.prompt("Enter a passphrase", hideInput = true)
+            else -> readlnOrNull()
+        } ?: exitError("Could not read credential.")
+
+        return runCatching {
+            if (isKey) Key(value) else Key.generate(value)
+        }.getOrElse {
+            exitError("Could not parse key.")
         }
     }
 }
