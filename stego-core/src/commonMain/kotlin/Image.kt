@@ -1,4 +1,4 @@
-package io.github.jadarma.steggo.core
+package io.github.jadarma.stego.core
 
 import dev.whyoleg.cryptography.CryptographySystem
 import kotlinx.io.*

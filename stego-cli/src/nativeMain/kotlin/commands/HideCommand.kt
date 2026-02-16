@@ -1,16 +1,20 @@
-package io.github.jadarma.steggo.cli.hide
+package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
-import io.github.jadarma.steggo.cli.util.exitError
-import io.github.jadarma.steggo.cli.util.load
-import io.github.jadarma.steggo.cli.util.readFile
-import io.github.jadarma.steggo.cli.util.write
-import io.github.jadarma.steggo.core.Image
-import io.github.jadarma.steggo.core.Key
+import io.github.jadarma.stego.cli.options.EncodingOptions
+import io.github.jadarma.stego.cli.options.ImageFileOptions
+import io.github.jadarma.stego.cli.options.PayloadOptions
+import io.github.jadarma.stego.cli.options.PayloadSource
+import io.github.jadarma.stego.cli.util.exitError
+import io.github.jadarma.stego.cli.util.load
+import io.github.jadarma.stego.cli.util.readFile
+import io.github.jadarma.stego.cli.util.write
+import io.github.jadarma.stego.core.Image
+import io.github.jadarma.stego.core.Key
 import kotlinx.io.files.SystemFileSystem
 
 /** Subcommand for hiding a payload inside an image file. */

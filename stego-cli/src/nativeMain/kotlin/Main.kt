@@ -1,10 +1,10 @@
-package io.github.jadarma.steggo
+package io.github.jadarma.stego.cli
 
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
-import io.github.jadarma.steggo.cli.hide.HideCommand
-import io.github.jadarma.steggo.cli.StegoCommand
-import io.github.jadarma.steggo.cli.show.ShowCommand
+import io.github.jadarma.stego.cli.commands.HideCommand
+import io.github.jadarma.stego.cli.commands.StegoCommand
+import io.github.jadarma.stego.cli.commands.ShowCommand
 
 fun main(args: Array<String>): Unit =
     StegoCommand()

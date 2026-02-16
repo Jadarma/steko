@@ -1,4 +1,4 @@
-package io.github.jadarma.steggo.cli.util
+package io.github.jadarma.stego.cli.util
 
 import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.ProgramResult

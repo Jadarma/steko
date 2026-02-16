@@ -1,8 +1,8 @@
-package io.github.jadarma.steggo.cli.util
+package io.github.jadarma.stego.cli.util
 
 import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
-import io.github.jadarma.steggo.core.Image
+import io.github.jadarma.stego.core.Image
 import kotlinx.cinterop.*
 import kotlinx.io.files.Path
 import stbImage.stbi_load

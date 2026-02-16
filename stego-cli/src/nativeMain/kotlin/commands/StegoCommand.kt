@@ -1,4 +1,4 @@
-package io.github.jadarma.steggo.cli
+package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
@@ -24,6 +24,5 @@ class StegoCommand : CliktCommand("stego") {
         }
     }
 
-    override fun run() {
-    }
+    override fun run() = Unit
 }

@@ -1,4 +1,4 @@
-package io.github.jadarma.steggo.cli.hide
+package io.github.jadarma.stego.cli.options
 
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
