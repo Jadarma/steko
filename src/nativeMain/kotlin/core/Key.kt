@@ -1,90 +1,119 @@
 package io.github.jadarma.steggo.core
 
+import dev.whyoleg.cryptography.CryptographySystem
+import dev.whyoleg.cryptography.algorithms.AES
+import dev.whyoleg.cryptography.algorithms.SHA256
 import kotlinx.io.Buffer
 import kotlinx.io.bytestring.ByteString
-import kotlinx.io.readByteArray
-import kotlinx.io.readUByte
+import kotlinx.io.readTo
 import kotlinx.io.readUInt
-import kotlinx.io.writeUByte
 import kotlinx.io.writeUInt
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind.STRING
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlin.io.encoding.Base64
-import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 /**
- * A key encoding the various settings and parameters required to extract a hidden payload.
- * It is _(mostly)_ randomly generated and provided together with the successfully altered image.
+ * A key that can be used to embed or extract a hidden, encrypted payload inside pixel data.
+ *
+ * @property bytes The key's binary representation.
  */
-@Serializable(with = KeySerializer::class)
-class Key private constructor(private val value: String, internal val parameters: Parameters) {
+class Key(bytes: ByteArray) {
 
-    /** Decode the key from its string representation. */
-    constructor(value: String) : this(value, parametersFromValue(value))
+    /** Construct a key by reading a copy of given [bytes]. */
+    constructor(bytes: ByteString) : this(bytes.toByteArray())
 
-    /** Create a key from the parameters it represents. */
-    internal constructor(parameters: Parameters) : this(valueFromParameters(parameters), parameters)
+    /** Construct a key by decoding it from its [hexString] representation. */
+    constructor(hexString: String) : this(hexString.hexToByteArray())
 
-    // The string value is used as an identity.
-    override fun toString(): String = value
-    override fun hashCode(): Int = value.hashCode()
+    /** The bits to use from the RGBA pixel data. */
+    internal val bitmask: UInt
+
+    /** The seed to generate pseudo-random pixel order from. */
+    internal val seed: Long
+
+    /** The cryptographic key used to encrypt and decrypt the payload. */
+    internal val aesKey: AES.GCM.Key
+
+    /** The windowed XOR over the hash of the key, used as a preflight check. */
+    internal val challenge: Int
+
+    init {
+        require(bytes.size == SIZE_BYTES) { "Invalid key format. Got ${bytes.size} instead of $SIZE_BYTES bytes." }
+        Buffer().use { buffer ->
+            buffer.write(bytes)
+            bitmask = buffer.readUInt()
+            buffer.write(bytes, UInt.SIZE_BYTES, Long.SIZE_BYTES)
+            seed = buffer.readLong()
+        }
+        require(bitmask != 0u) { "The bitmask requires at least one bit to be set." }
+        Buffer().use { buffer ->
+            buffer.write(hasher.hashBlocking(bytes))
+            var acc = 0
+            repeat(HASH_SIZE_BYTES / Int.SIZE_BITS) {
+                acc = acc xor buffer.readInt()
+            }
+            challenge = acc
+        }
+        aesKey = keyDecoder.decodeFromByteArrayBlocking(AES.Key.Format.RAW, bytes)
+    }
+
+    /** Encodes the key in its raw binary representation. */
+    fun toByteArray(): ByteArray = aesKey.encodeToByteArrayBlocking(AES.Key.Format.RAW)
+
+    /** Encodes the key in its hex-string representation. */
+    fun toHexString(): String = toByteArray().toHexString()
+
+    override fun hashCode(): Int = challenge
+
     override fun equals(other: Any?): Boolean = when {
         this === other -> true
         other == null || this::class != other::class -> false
-        else -> value == (other as Key).value
+        this.challenge != (other as Key).challenge -> false
+        else -> this.toHexString() == other.toHexString()
     }
 
-    private companion object {
+    companion object {
+        const val SIZE_BYTES: Int = 32
+        const val SIZE_BITS: Int = 256
+        internal const val HASH_SIZE_BYTES: Int = 32
 
-        const val KEY_PREFIX = "stego_"
+        internal const val DEFAULT_BITMASK: UInt = 0x01010100u
 
-        /** Convert the [params] into their string representation. */
-        fun valueFromParameters(params: Parameters): String =
-            Buffer().use { buffer ->
-                buffer.writeLong(params.seed)
-                buffer.write(params.encryptionKey.toByteArray())
-                buffer.writeUInt(params.bitmask)
-                buffer.writeInt(params.payloadOffset * if(params.noise) -1 else 1)
-                buffer.writeInt(params.payloadSize)
-                buffer.writeUByte(params.payloadType.value)
-                KEY_PREFIX + buffer.readByteArray().let(Base64.UrlSafe::encode)
+        /**
+         * Generates a new, random key.
+         *
+         * @param bitmask The bits to use from the RGBA pixel data when performing steganographic operations.
+         *                By default, the least significant bit of the R, G, and B channels will be used.
+         *                The value cannot be zero, as then no bits would be used.
+         * @param random  The source of random data.
+         *                By default, a platform-specific, cryptographically secure random source is used.
+         *                It is not recommended to use pseudo-random instances here except for testing.
+         */
+        fun generate(
+            bitmask: UInt = DEFAULT_BITMASK,
+            random: Random = CryptographySystem.getDefaultRandom(),
+        ): Key {
+            val bytes = random.nextBytes(SIZE_BYTES)
+            Buffer().use {
+                it.writeUInt(bitmask)
+                it.readTo(bytes, 0, UInt.SIZE_BYTES)
             }
-
-        /** Decode the parameters from the string [key]. */
-        fun parametersFromValue(key: String): Parameters {
-            require(key.startsWith(KEY_PREFIX)) { "Key must start with prefix." }
-            val bytes = key.removePrefix(KEY_PREFIX).let(Base64.UrlSafe::decode)
-            return Buffer().use { buffer ->
-                buffer.write(bytes)
-                val seed = buffer.readLong()
-                val key = buffer.readByteArray(Cryptography.KEY_SIZE_BYTES)
-                val bitmask = buffer.readUInt()
-                val offsetAndNoise = buffer.readInt()
-                val size = buffer.readInt()
-                val type = buffer.readUByte()
-                check(buffer.size == 0L) { "Key contained extraneous bytes." }
-                Parameters(
-                    seed = seed,
-                    encryptionKey = ByteString(key),
-                    bitmask = bitmask,
-                    noise = offsetAndNoise < 0,
-                    payloadOffset = offsetAndNoise.absoluteValue,
-                    payloadSize = size,
-                    payloadType = PayloadType.of(type),
-                )
-            }
+            return Key(ByteString(bytes))
         }
-    }
-}
 
-/** Serializes the key as a string. */
-object KeySerializer : KSerializer<Key> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(Key::class.qualifiedName!!, STRING)
-    override fun serialize(encoder: Encoder, value: Key) = encoder.encodeString(value.toString())
-    override fun deserialize(decoder: Decoder): Key = Key(decoder.decodeString())
+        /**
+         * Derive a key from the [passphrase].
+         * This allows human-friendly interaction.
+         * Note that when using this mode, the bitmask cannot be changed from the default.
+         */
+        fun generate(passphrase: String): Key {
+            val bytes = hasher.hashBlocking(passphrase.encodeToByteArray())
+            Buffer().use {
+                it.writeUInt(DEFAULT_BITMASK)
+                it.readTo(bytes, 0, UInt.SIZE_BYTES)
+            }
+            return Key(ByteString(bytes))
+        }
+
+        private val keyDecoder by lazy { CryptographySystem.getDefaultProvider().get(AES.GCM).keyDecoder() }
+        private val hasher by lazy { CryptographySystem.getDefaultProvider().get(SHA256).hasher() }
+    }
 }

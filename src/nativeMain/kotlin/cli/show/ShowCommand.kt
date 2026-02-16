@@ -76,11 +76,7 @@ class ShowCommand : CliktCommand() {
         val keyValue = runCatching { readln() }.getOrElse { exitError("No key was provided.") }
         val key = runCatching { Key(keyValue) }.getOrElse { exitError("Key is invalid.") }
 
-        val data = when (val payload = Stego.reveal(image, key)) {
-            is TextPayload -> payload.text.encodeToByteArray()
-            is RawPayload -> payload.data.asByteArray()
-            null -> exitError("Could not find any secret using this key.", 2)
-        }
+        val data = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
 
         when (val dir = outputDirectory) {
             null -> printToStdOut(data)
