@@ -13,7 +13,7 @@ import kotlin.random.Random
 /**
  * A key that can be used to embed or extract a hidden, encrypted payload inside pixel data.
  *
- * @property bytes The key's binary representation.
+ * @param bytes The key's binary representation.
  */
 class Key(bytes: ByteArray) {
 
@@ -73,9 +73,10 @@ class Key(bytes: ByteArray) {
     companion object {
         const val SIZE_BYTES: Int = 32
         const val SIZE_BITS: Int = 256
-        internal const val HASH_SIZE_BYTES: Int = 32
 
-        internal const val DEFAULT_BITMASK: UInt = 0x01010100u
+        private const val HASH_SIZE_BYTES: Int = 32
+
+        private const val DEFAULT_BITMASK: UInt = 0x01010100u
 
         /**
          * Generates a new, random key.
@@ -83,15 +84,9 @@ class Key(bytes: ByteArray) {
          * @param bitmask The bits to use from the RGBA pixel data when performing steganographic operations.
          *                By default, the least significant bit of the R, G, and B channels will be used.
          *                The value cannot be zero, as then no bits would be used.
-         * @param random  The source of random data.
-         *                By default, a platform-specific, cryptographically secure random source is used.
-         *                It is not recommended to use pseudo-random instances here except for testing.
          */
-        fun generate(
-            bitmask: UInt = DEFAULT_BITMASK,
-            random: Random = CryptographySystem.getDefaultRandom(),
-        ): Key {
-            val bytes = random.nextBytes(SIZE_BYTES)
+        fun generate(bitmask: UInt = DEFAULT_BITMASK): Key {
+            val bytes = CryptographySystem.getDefaultRandom().nextBytes(SIZE_BYTES)
             Buffer().use {
                 it.writeUInt(bitmask)
                 it.readTo(bytes, 0, UInt.SIZE_BYTES)

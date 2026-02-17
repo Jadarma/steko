@@ -25,6 +25,7 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotest.engine)
             implementation(libs.kotest.assertions)
+            implementation(libs.kotlin.cryptography.optimalProvider)
         }
     }
 }
