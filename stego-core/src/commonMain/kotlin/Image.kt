@@ -4,6 +4,7 @@ import dev.whyoleg.cryptography.CryptographySystem
 import io.github.jadarma.stego.core.internal.StegoSink
 import io.github.jadarma.stego.core.internal.StegoSource
 import io.github.jadarma.stego.core.internal.capacity
+import io.github.jadarma.stego.core.internal.cborFormat
 import io.github.jadarma.stego.core.internal.encodeToByteArray
 import kotlinx.io.*
 import kotlinx.serialization.cbor.Cbor
@@ -66,7 +67,8 @@ class Image(
      */
     fun show(key: Key): StegoPayload? {
         val (isRaw, data) = showInternal(key) ?: return null
-        return if (isRaw) RawPayload(data) else Cbor.decodeFromByteArray(Payload.serializer(), data)
+        return if (isRaw) RawPayload(data)
+        else runCatching { cborFormat.decodeFromByteArray(Payload.serializer(), data) }.getOrNull()
     }
 
     /**

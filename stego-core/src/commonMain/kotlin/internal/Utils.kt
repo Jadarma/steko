@@ -1,10 +1,6 @@
 package io.github.jadarma.stego.core.internal
 
-import io.github.jadarma.stego.core.Image
-import io.github.jadarma.stego.core.Key
-import io.github.jadarma.stego.core.Payload
-import io.github.jadarma.stego.core.RawPayload
-import io.github.jadarma.stego.core.StegoPayload
+import io.github.jadarma.stego.core.*
 import kotlinx.serialization.cbor.Cbor
 import kotlin.random.Random
 
@@ -44,7 +40,7 @@ internal fun Key.maskedBits(): IntArray = IntArray(bitmask.countOneBits()).apply
 /** Encode the payload to a byte array depending on its type. */
 internal fun StegoPayload.encodeToByteArray(): ByteArray = when (this) {
     is RawPayload -> data
-    is Payload -> Cbor.encodeToByteArray(Payload.serializer(), this)
+    is Payload -> cborFormat.encodeToByteArray(Payload.serializer(), this)
 }
 
 /** Returns the number equal to this binary representation with the bit at [index] as `1`. */
@@ -58,3 +54,12 @@ internal fun Byte.isBitSet(index: Int): Boolean = this.toUInt() and (1u shl inde
 
 /** Returns either `1u` or `0u` depending on whether the bit at [index] is set. */
 internal fun UInt.bitAt(index: Int): UInt = (this shr index) and 1u
+
+/** Customised CBOR format used for payloads, aimed to be as lightweight and robust as possible. */
+internal val cborFormat = Cbor {
+    useDefiniteLengthEncoding = true
+    alwaysUseByteString = true
+    encodeObjectTags = true
+    verifyObjectTags = true
+    encodeDefaults = true
+}

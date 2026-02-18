@@ -1,6 +1,8 @@
 package io.github.jadarma.stego.core
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.cbor.CborArray
+import kotlinx.serialization.cbor.ObjectTags
 
 /** Marker interface for payloads hidden by Stego. */
 sealed interface StegoPayload
@@ -13,11 +15,32 @@ sealed interface StegoPayload
  * @property attachments A collection of arbitrary byte strings, keyed by their file name.
  *                       Emulates a primitive, flat filesystem.
  */
+@CborArray
+@ObjectTags(0x53544547uL) // "STEG" Magic identifier for double-checking.
 @Serializable
-data class Payload(
+class Payload(
     val message: String? = null,
     val attachments: Map<String, ByteArray> = emptyMap(),
-) : StegoPayload
+) : StegoPayload {
+
+    /** Construct a payload containing only a message. */
+    constructor(message: String) : this(message = message, attachments = emptyMap())
+
+    /** Construct a payload containing only attachments. */
+    constructor(attachments: Map<String, ByteArray>) : this(message = null, attachments = attachments)
+
+    init {
+        require(message != null || attachments.isNotEmpty()) { "Payload cannot be empty." }
+
+        attachments.forEach { (name, content) ->
+            require(content.isNotEmpty()) { "Attachment contents must not be empty." }
+            require(name.isNotEmpty()) { "Attachments must have a name." }
+            require(name.length < 256) { "Attachments names must not exceed 255 characters." }
+            require(!name.contains("/") && !name.contains(":")) { "Attachments contain illegal characters." }
+            require(name.trim() == name) { "Attachment names must not have surrounding whitespace." }
+        }
+    }
+}
 
 /**
  * Custom data, when user decided not to use the default [Payload].
@@ -25,4 +48,9 @@ data class Payload(
  *
  * @property data The raw bytes of the payload.
  */
-value class RawPayload(val data: ByteArray) : StegoPayload
+value class RawPayload(val data: ByteArray) : StegoPayload {
+
+    init {
+        require(data.isNotEmpty()) { "Payload cannot be empty." }
+    }
+}
