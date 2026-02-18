@@ -8,14 +8,13 @@ import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import io.github.jadarma.stego.cli.options.EncodingOptions
 import io.github.jadarma.stego.cli.options.ImageFileOptions
 import io.github.jadarma.stego.cli.options.PayloadOptions
-import io.github.jadarma.stego.cli.options.PayloadSource
 import io.github.jadarma.stego.cli.util.exitError
 import io.github.jadarma.stego.cli.util.load
 import io.github.jadarma.stego.cli.util.readFile
 import io.github.jadarma.stego.cli.util.write
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
-import io.github.jadarma.stego.core.RawPayload
+import io.github.jadarma.stego.core.Payload
 import kotlinx.io.files.SystemFileSystem
 
 /** Subcommand for hiding a payload inside an image file. */
@@ -44,10 +43,10 @@ class HideCommand : CliktCommand("hide") {
               ${example("stego hide -m 'Hello' -i in.png -o out.png")}
             
             - Hide a file:\
-              ${example("stego hide -d secret.md -i in.png -o out.png")}
+              ${example("stego hide -a secret.md -i in.png -o out.png")}
               
             - Edit the image in-place:\
-              ${example("stego hide -d secret.md -e image.png")}
+              ${example("stego hide -a secret.md -e image.png")}
               
             - Use passphrase from a file:\
               ${example("stego hide -m 'Hello' -e image.png < secret.key")}
@@ -57,7 +56,7 @@ class HideCommand : CliktCommand("hide") {
         """.trimIndent()
     }
 
-    val payloadSource by PayloadOptions()
+    val payloads by PayloadOptions()
     val imageFiles by ImageFileOptions()
     val encodingOptions by EncodingOptions()
 
@@ -66,11 +65,10 @@ class HideCommand : CliktCommand("hide") {
         val key = getKey()
         val image = Image.load(imageFiles.input)
 
-        // TODO: Use the default payload.
-        val payload = when (val source = payloadSource) {
-            is PayloadSource.Message -> source.text.encodeToByteArray()
-            is PayloadSource.FromFile -> SystemFileSystem.readFile(source.path)
-        }.let(::RawPayload)
+        val payload = Payload(
+            message = payloads.message,
+            attachments = payloads.attachments.associate { it.name to SystemFileSystem.readFile(it) },
+        )
 
         image.hide(key, payload, encodingOptions.noise)
 
@@ -90,7 +88,7 @@ class HideCommand : CliktCommand("hide") {
                     terminal = terminal,
                     hideInput = true,
                     valueMismatchMessage = "Passphrases did not match.",
-                ).ask()
+                ).ask().also { echo() }
             }
             !terminal.terminalInfo.inputInteractive -> readlnOrNull()
             else -> exitError("No input on STDIN given.")

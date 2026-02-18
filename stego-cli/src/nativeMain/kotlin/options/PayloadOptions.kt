@@ -1,38 +1,44 @@
 package io.github.jadarma.stego.cli.options
 
-import com.github.ajalt.clikt.core.ParameterHolder
-import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
-import com.github.ajalt.clikt.parameters.groups.required
-import com.github.ajalt.clikt.parameters.groups.single
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.validate
+import io.github.jadarma.stego.cli.util.checkFile
+import io.github.jadarma.stego.cli.util.validateCatching
 import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 
-/** The source of the data to hide in the image. */
-sealed interface PayloadSource {
-
-    /** The payload is an immediate, plain [text] value. */
-    data class Message(val text: String) : PayloadSource
-
-    /** The payload should be read form a file with a given [path]. */
-    data class FromFile(val path: Path) : PayloadSource
-}
-
-/** Creates a mutually exclusive option group that returns the [PayloadOptions]. */
-@Suppress("FunctionName")
-fun ParameterHolder.PayloadOptions() = mutuallyExclusiveOptions(
+class PayloadOptions : OptionGroup(
     name = "Payload Options",
     help = "Choose what will be hidden in the image.",
-    option1 = option(
+) {
+    val message: String? by option(
         "-m",
         "--message",
         metavar = "text",
         help = "Hide the given plain-text string.",
-    ).convert { PayloadSource.Message(it) },
-    option2 = option(
-        "-d",
-        "--data",
+    ).validate { text -> require(text.isNotBlank()) { "Text cannot be empty." } }
+
+    val attachments: List<Path> by option(
+        "-a",
+        "--attachment",
         metavar = "path",
-        help = "Hide the contents of this file.",
-    ).convert { PayloadSource.FromFile(Path(it)) },
-).single().required()
+        help = "Path to a file to attach. Multiple attachments are allowed."
+    )
+        .convert { Path(it) }
+        .multiple()
+        .validateCatching { paths -> paths.forEach { SystemFileSystem.checkFile(it) } }
+
+    override fun postValidate(context: Context) {
+        super.postValidate(context)
+        if (message == null && attachments.isEmpty()) {
+            val info = context.terminal.theme.info
+            throw UsageError("No payload given. Please define a ${info("--message")} and / or ${info("--attachment")}s")
+        }
+    }
+}

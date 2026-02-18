@@ -3,20 +3,14 @@ package io.github.jadarma.stego.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.nullableFlag
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.options.validate
+import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.mordant.markdown.Markdown
+import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.terminal.prompt
-import io.github.jadarma.stego.cli.util.checkDirectory
-import io.github.jadarma.stego.cli.util.exitError
-import io.github.jadarma.stego.cli.util.load
-import io.github.jadarma.stego.cli.util.printToStdOut
-import io.github.jadarma.stego.cli.util.writeFile
+import io.github.jadarma.stego.cli.util.*
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
+import io.github.jadarma.stego.core.Payload
 import io.github.jadarma.stego.core.RawPayload
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -26,15 +20,17 @@ class ShowCommand : CliktCommand() {
     override val printHelpOnEmptyArgs: Boolean = true
 
     override fun help(context: Context): String {
+        val info = context.terminal.theme.info
         return """
             Prompts for a password (or reads from _STDIN_, when not interactive) and attempts to extract the payload.
             
-            By default, the payload will be printed to _STDOUT_.
-            When in interactive mode, non-text payloads will not be printed, instead the filename and size will be
-            displayed.
+            If the payload has a _message_, it will be printed to _STDOUT_.
+            When in interactive mode, attachment names and sizes will also be displayed.
+            To view the contents of attachments, save them to a specified directory with the ${info("--out")}
+            option.
             
-            Alternatively, the payload can be saved as a file attachment in a specified directory, restoring its 
-            original filename.
+            _NOTE:_ It is also possible the payload doesn't contain the default Stego metadata.
+            In that case, the entire raw payload will be printed to _STDOUT_.
         """.trimIndent()
     }
 
@@ -81,12 +77,32 @@ class ShowCommand : CliktCommand() {
         val image = Image.load(imagePath)
         val payload = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
 
-        // TODO: Handle the default payload
-        if(payload !is RawPayload) exitError("Not implemented yet")
+        if (payload is RawPayload) {
+            printToStdOut(payload.data)
+            return
+        }
 
-        when (val dir = outputDirectory) {
-            null -> printToStdOut(payload.data)
-            else -> SystemFileSystem.writeFile(Path(dir, "secret.out"), payload.data)
+        val message = (payload as Payload).message
+        if (message != null) {
+            if (terminal.terminalInfo.outputInteractive) {
+                terminal.println(Markdown(message))
+            } else {
+                printToStdOut(message.encodeToByteArray())
+            }
+        }
+
+        val attachments = payload.attachments.takeIf { it.isNotEmpty() } ?: return
+
+        val outDir = outputDirectory
+        if (outDir != null) {
+            attachments.forEach { (name, content) ->
+                SystemFileSystem.writeFile(Path(outDir, name), content)
+            }
+        }
+
+        if (terminal.terminalInfo.outputInteractive) {
+            if (message != null) terminal.println(Markdown("---"))
+            terminal.printAttachments(attachments, previewOnly = outDir == null)
         }
     }
 
@@ -97,7 +113,7 @@ class ShowCommand : CliktCommand() {
     private fun getKey(): Key {
         val value = when {
             isKey -> readlnOrNull()
-            terminal.terminalInfo.interactive -> terminal.prompt("Enter a passphrase", hideInput = true)
+            terminal.terminalInfo.interactive -> terminal.prompt("Enter a passphrase", hideInput = true).also { echo() }
             else -> readlnOrNull()
         } ?: exitError("Could not read credential.")
 
@@ -106,5 +122,36 @@ class ShowCommand : CliktCommand() {
         }.getOrElse {
             exitError("Could not parse key.")
         }
+    }
+
+    /** Nicely render the attachments as a Markdown preview.*/
+    private fun Terminal.printAttachments(attachments: Map<String, ByteArray>, previewOnly: Boolean) {
+        if (attachments.isEmpty()) return
+        with(StringBuilder()) {
+            append("**")
+            if (!previewOnly) append("Extracted ")
+            appendLine("Attachments (${attachments.size}):**")
+
+            for ((name, content) in attachments) {
+                append(" - **$name** ")
+                var size = content.size
+                var unit = "B"
+                if (size > 1024) {
+                    size /= 1024; unit = "KiB"
+                }
+                if (size > 1024) {
+                    size /= 1024; unit = "MiB"
+                }
+                appendLine(theme.muted("(${size}$unit)"))
+            }
+
+            if (previewOnly) {
+                appendLine()
+                append("_")
+                append(theme.muted("(Hint: Attachments can be extracted by specifying the --out directory.)"))
+                appendLine("_")
+            }
+            toString()
+        }.let(::Markdown).let(::print)
     }
 }

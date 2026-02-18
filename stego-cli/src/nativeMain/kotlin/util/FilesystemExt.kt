@@ -3,11 +3,9 @@ package io.github.jadarma.stego.cli.util
 import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
 import kotlinx.io.buffered
-import kotlinx.io.bytestring.ByteString
 import kotlinx.io.files.FileSystem
 import kotlinx.io.files.Path
 import kotlinx.io.readByteArray
-import kotlinx.io.write
 
 /**
  * Reads all bytes contained in the file at the given [path].
@@ -48,12 +46,23 @@ fun FileSystem.writeFile(path: Path, data: ByteArray) {
 }
 
 /**
+ * Verifies that the [path] exists and is a _(regular)_ file.
+ *
+ * @throws IllegalArgumentException If the path doesn't exist or is not a file.
+ */
+fun FileSystem.checkFile(path: Path) {
+    val meta = metadataOrNull(path)
+    require(meta != null) { "File does not exist: $path" }
+    require(meta.isRegularFile) { "Expected file path is not a file: $path" }
+}
+
+/**
  * Verifies that the [path] exists and is a directory.
  *
- * @throws ProgramResult If the data was not successfully written for any reason (also reports the error to _STDOUT_).
+ * @throws IllegalArgumentException If the path doesn't exist or is not a directory.
  */
-context(_: BaseCliktCommand<*>)
 fun FileSystem.checkDirectory(path: Path) {
-    val meta = metadataOrNull(path) ?: exitError("Directory does not exist: $path")
-    if (meta.isDirectory.not()) exitError("Expected directory path is a file: $path")
+    val meta = metadataOrNull(path)
+    require(meta != null) { "Directory does not exist: $path" }
+    require(meta.isDirectory) { "Expected directory path is a file: $path" }
 }
