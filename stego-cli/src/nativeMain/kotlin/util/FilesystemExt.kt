@@ -36,7 +36,7 @@ fun FileSystem.readFile(path: Path): ByteArray {
  * @throws ProgramResult If the data was not successfully written for any reason (also reports the error to _STDOUT_).
  */
 context(_: BaseCliktCommand<*>)
-fun FileSystem.writeFile(path: Path, data: ByteString) {
+fun FileSystem.writeFile(path: Path, data: ByteArray) {
     runCatching {
         sink(path, append = false).buffered().use {
             it.write(data)

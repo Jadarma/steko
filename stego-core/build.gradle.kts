@@ -17,10 +17,17 @@ kotlin {
     linuxArm64()
     macosArm64()
 
+    compilerOptions {
+        optIn.addAll(
+            "kotlinx.serialization.ExperimentalSerializationApi"
+        )
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlin.cryptography.core)
             implementation(libs.kotlin.io.core)
+            implementation(libs.kotlin.serialization.cbor)
         }
         commonTest.dependencies {
             implementation(libs.kotest.engine)

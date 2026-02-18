@@ -17,7 +17,7 @@ import io.github.jadarma.stego.cli.util.printToStdOut
 import io.github.jadarma.stego.cli.util.writeFile
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
-import kotlinx.io.bytestring.ByteString
+import io.github.jadarma.stego.core.RawPayload
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 
@@ -79,11 +79,14 @@ class ShowCommand : CliktCommand() {
     override fun run() {
         val key = getKey()
         val image = Image.load(imagePath)
-        val data = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
+        val payload = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
+
+        // TODO: Handle the default payload
+        if(payload !is RawPayload) exitError("Not implemented yet")
 
         when (val dir = outputDirectory) {
-            null -> printToStdOut(data)
-            else -> SystemFileSystem.writeFile(Path(dir, "secret.out"), ByteString(data))
+            null -> printToStdOut(payload.data)
+            else -> SystemFileSystem.writeFile(Path(dir, "secret.out"), payload.data)
         }
     }
 

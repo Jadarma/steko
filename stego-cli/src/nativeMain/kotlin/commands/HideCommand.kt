@@ -15,6 +15,7 @@ import io.github.jadarma.stego.cli.util.readFile
 import io.github.jadarma.stego.cli.util.write
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
+import io.github.jadarma.stego.core.RawPayload
 import kotlinx.io.files.SystemFileSystem
 
 /** Subcommand for hiding a payload inside an image file. */
@@ -65,10 +66,11 @@ class HideCommand : CliktCommand("hide") {
         val key = getKey()
         val image = Image.load(imageFiles.input)
 
+        // TODO: Use the default payload.
         val payload = when (val source = payloadSource) {
             is PayloadSource.Message -> source.text.encodeToByteArray()
             is PayloadSource.FromFile -> SystemFileSystem.readFile(source.path)
-        }
+        }.let(::RawPayload)
 
         image.hide(key, payload, encodingOptions.noise)
 
