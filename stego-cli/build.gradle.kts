@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.testResources)
     alias(libs.plugins.kotest)
     alias(libs.plugins.ksp)
 }
@@ -51,6 +52,7 @@ kotlin {
             implementation(libs.clikt.markdown)
         }
         nativeTest.dependencies {
+            implementation(libs.kotlin.testResources)
             implementation(libs.kotest.engine)
             implementation(libs.kotest.assertions)
         }
