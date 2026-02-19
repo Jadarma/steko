@@ -2,6 +2,7 @@ package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.mordant.markdown.Markdown
@@ -113,16 +114,23 @@ class ShowCommand : CliktCommand() {
     * If it expects a key, will parse it from hexadecimal, otherwise will generate one from the passphrase given.
     */
     private fun getKey(): Key {
+        val target = if (usePassphrase) "passphrase" else "key"
         val value = when {
-            !usePassphrase -> readlnOrNull()
-            terminal.terminalInfo.interactive -> terminal.prompt("Enter a passphrase", hideInput = true).also { echo() }
+            usePassphrase && terminal.terminalInfo.interactive ->
+                terminal
+                    .prompt("Enter a passphrase", hideInput = true)
+                    .also { echo() }
+
+            terminal.terminalInfo.inputInteractive ->
+                throw UsageError("No $target given to STDIN.")
+
             else -> readlnOrNull()
-        } ?: exitError("Could not read credential.")
+        } ?: exitError("Could not read $target.")
 
         return runCatching {
             if (usePassphrase) Key.generate(value) else Key(value)
         }.getOrElse {
-            exitError("Could not parse key.")
+            exitError("Could not parse $target.")
         }
     }
 

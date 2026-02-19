@@ -41,8 +41,10 @@ class Image(
      */
     fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image {
         val encrypted = key.aesKey.cipher().encryptBlocking(payload.encodeToByteArray())
-        if (Int.SIZE_BYTES * 2 + encrypted.size > this.capacity(key)) {
-            throw IndexOutOfBoundsException("Payload too large to fit in the image.")
+        val requiredCapacity = Int.SIZE_BYTES * 2 + encrypted.size
+        val thisCapacity = this.capacity(key)
+        if (requiredCapacity > thisCapacity) {
+            throw IndexOutOfBoundsException("(${requiredCapacity}B > ${thisCapacity}B)")
         }
 
         if (noise) noise(key.bitmask)

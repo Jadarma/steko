@@ -2,6 +2,7 @@ package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
@@ -64,7 +65,14 @@ class HideCommand : CliktCommand("hide") {
         )
 
         image
-            .hide(key, payload, encodingOptions.noise)
+            .runCatching { hide(key, payload, encodingOptions.noise) }
+            .getOrElse { cause ->
+                if (cause is IndexOutOfBoundsException) exitError(
+                    "Payload cannot fit in this image" + cause.message.orEmpty() + ". Use a larger image, or bitmask.",
+                    3
+                )
+                exitError("Unexpected error occurred.", 4)
+            }
             .write(imageFiles.output)
 
         echo(key.toHexString())
@@ -81,8 +89,8 @@ class HideCommand : CliktCommand("hide") {
                 hideInput = true,
                 valueMismatchMessage = "Passphrases did not match.",
             ).ask().also { echo() }
-            !terminal.terminalInfo.inputInteractive -> readlnOrNull()
-            else -> exitError("No input on STDIN given.")
+            terminal.terminalInfo.inputInteractive -> throw UsageError("No input given to STDIN.")
+            else -> readlnOrNull()
         } ?: exitError("Could not get credential.")
 
         return Key.generate(passphrase = value)
