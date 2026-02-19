@@ -19,11 +19,11 @@ internal class StegoSink(private val image: Image, key: Key) : RawSink {
     private val capacity = image.capacity(key)
 
     private var index = 0L
-    private val remaining get() = capacity - index - 1
 
     override fun write(source: Buffer, byteCount: Long) {
-        if (remaining < 0 || byteCount < 0) return
-        for (i in 0 until minOf(byteCount, remaining)) {
+        if (index >= capacity || byteCount < 0) return
+        @Suppress("unused")
+        for (i in 0 until minOf(byteCount, capacity - index)) {
             writeByte(source.readByte())
         }
     }

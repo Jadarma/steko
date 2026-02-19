@@ -57,5 +57,9 @@ class RandomTest : FunSpec({
 
         shuffledByA contentEquals shuffledByB shouldBe true
         shuffledByA contentEquals shuffledByC shouldBe false
+
+        shuffledByA.size shouldBe image.pixels.size
+        shuffledByB.size shouldBe image.pixels.size
+        shuffledByC.size shouldBe image.pixels.size
     }
 })
