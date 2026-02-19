@@ -22,16 +22,13 @@ class HideCommand : CliktCommand("hide") {
 
     override val printHelpOnEmptyArgs: Boolean = true
 
-    override fun help(context: Context): String {
-        return """
-            Hide a message or file in an image.
-            
-            By default, prompts for a password (or reads from _STDIN_, when not interactive) and uses it to generate a
-            steganography key to embed the payload in the image.\
-            For more security, a unique random key can also be generated using **--keygen**.
-            It will be printed _STDOUT_ and needs to be saved as it is the only way to recover the payload.
-        """.trimIndent()
-    }
+    override fun help(context: Context): String = """
+        Hide a message and / or file attachments in an image.
+
+        The generated recovery key is printed to _STDOUT_.
+        Store it securely, on a different medium or filesystem from the resulting image.
+        It is the only way to recover the original payload.
+    """.trimIndent()
 
     override fun helpEpilog(context: Context): String {
         val header = context.terminal.theme.warning
@@ -48,11 +45,8 @@ class HideCommand : CliktCommand("hide") {
             - Edit the image in-place:\
               ${example("stego hide -a secret.md -e image.png")}
               
-            - Use passphrase from a file:\
-              ${example("stego hide -m 'Hello' -e image.png < secret.key")}
-              
-            - Generate a random key:\
-              ${example("stego hide --keygen -m 'Hello' -e image.png")}
+            - Use passphrase:\
+              ${example("stego hide -p -m 'Hello' -e image.png")}
         """.trimIndent()
     }
 
@@ -61,7 +55,6 @@ class HideCommand : CliktCommand("hide") {
     val encodingOptions by EncodingOptions()
 
     override fun run() {
-
         val key = getKey()
         val image = Image.load(imageFiles.input)
 
@@ -70,26 +63,24 @@ class HideCommand : CliktCommand("hide") {
             attachments = payloads.attachments.associate { it.name to SystemFileSystem.readFile(it) },
         )
 
-        image.hide(key, payload, encodingOptions.noise)
+        image
+            .hide(key, payload, encodingOptions.noise)
+            .write(imageFiles.output)
 
         echo(key.toHexString())
-
-        image.write(imageFiles.output)
     }
 
     private fun getKey(): Key {
-        if (encodingOptions.randomKey) return Key.generate(encodingOptions.bitmask)
+        if (encodingOptions.usePassphrase.not()) return Key.generate(encodingOptions.bitmask)
 
         val value = when {
-            terminal.terminalInfo.interactive -> {
-                ConfirmationPrompt.createString(
-                    firstPrompt = "Enter a passphrase",
-                    secondPrompt = "Verify passphrase",
-                    terminal = terminal,
-                    hideInput = true,
-                    valueMismatchMessage = "Passphrases did not match.",
-                ).ask().also { echo() }
-            }
+            terminal.terminalInfo.interactive -> ConfirmationPrompt.createString(
+                firstPrompt = "Enter a passphrase",
+                secondPrompt = "Verify passphrase",
+                terminal = terminal,
+                hideInput = true,
+                valueMismatchMessage = "Passphrases did not match.",
+            ).ask().also { echo() }
             !terminal.terminalInfo.inputInteractive -> readlnOrNull()
             else -> exitError("No input on STDIN given.")
         } ?: exitError("Could not get credential.")

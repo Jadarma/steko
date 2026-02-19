@@ -16,13 +16,14 @@ import com.github.ajalt.clikt.parsers.OptionInvocation
 /** Provides options for steganography encoding. */
 class EncodingOptions : OptionGroup(
     name = "Encoding Options",
-    help = "Customise algorithm parameters."
+    help = "Customise algorithm parameters.",
 ) {
-    val randomKey: Boolean by option(
-        "-k", "--keygen",
+    val usePassphrase: Boolean by option(
+        "-p", "--passphrase",
         help = """
-            Generates a random key instead of prompting for a passphrase.
-            The output of the command should be _saved_ for recovery.
+            Prompts for a passphrase instead of generating a random key.
+            More convenient, but less secure.
+            Prefer not overusing the same passphrase for important files.
         """.trimIndent(),
     ).nullableFlag().default(false)
 
@@ -35,7 +36,7 @@ class EncodingOptions : OptionGroup(
             especially if the original image doesn't make use of transparency.
             One can also use many or all bits, leading to chaos resembling glitch art.
             For obvious reasons, value _cannot be zero_.
-            _NOTE:_ When using a custom bitmask, the **--keygen** option is required!
+            _NOTE:_ When using a custom bitmask, the **--passphrase** option cannot be used!
         """.trimIndent(),
         helpTags = mapOf("Examples" to "0x01020100 == 1690854"),
     )
@@ -50,18 +51,20 @@ class EncodingOptions : OptionGroup(
         "--noise",
         help = """
             Choose whether to write random data in the pixels not used to encode the payload.
-            The noise attempts to explain away imperfections caused by the payload bitmask as noise in the host image.
+            The noise attempts to explain away imperfections caused by the payload bitmask as noise or compression
+            artifacts in the carrier image, as well as make it more difficult to locate pixels of the payload when the
+            original image is known.
         """.trimIndent()
     ).flag("--no-noise", default = true, defaultForHelp = "Enabled")
 
     override fun finalize(
         context: Context,
-        invocationsByOption: Map<Option, List<OptionInvocation>>
+        invocationsByOption: Map<Option, List<OptionInvocation>>,
     ) {
         super.finalize(context, invocationsByOption)
         val info = context.terminal.theme.info
-        if (bitmask != DEFAULT_BITMASK && !randomKey) {
-            throw UsageError("using a custom ${info("--bitmask")} requires the ${info("--keygen")} flag")
+        if (usePassphrase && bitmask != DEFAULT_BITMASK) {
+            throw UsageError("Cannot set a custom ${info("--bitmask")} when using a ${info("--passphrase")}!")
         }
     }
 

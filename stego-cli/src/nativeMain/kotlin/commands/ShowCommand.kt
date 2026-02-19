@@ -22,9 +22,11 @@ class ShowCommand : CliktCommand() {
     override fun help(context: Context): String {
         val info = context.terminal.theme.info
         return """
-            Prompts for a password (or reads from _STDIN_, when not interactive) and attempts to extract the payload.
+            Recover previously hidden data from an image.
+
+            Reads the key from _STDIN_ and attempts to extract the payload.
             
-            If the payload has a _message_, it will be printed to _STDOUT_.
+            If the payload has a _message_, it will always be printed to _STDOUT_.
             When in interactive mode, attachment names and sizes will also be displayed.
             To view the contents of attachments, save them to a specified directory with the ${info("--out")}
             option.
@@ -41,19 +43,19 @@ class ShowCommand : CliktCommand() {
             ${header("Examples")}:
          
             - Extract a payload:\
-              ${example("stego show -i image.png")}
+              ${example("stego show -i image.png < secret.key")}
             
-            - Use a keyfile:\
-              ${example("stego show -k -i image.png < secret.key")}
+            - Use a passphrase:\
+              ${example("stego show -p -i image.png")}
               
-            - Save to disk _(here, current directory)_:\
-              ${example("stego show -i image.png -o .")}
+            - Save attachments to disk:\
+              ${example("stego show -i image.png -o /tmp/stego < secret.key")}
         """.trimIndent()
     }
 
-    val isKey: Boolean by option(
-        "-k", "--key",
-        help = "Treats the input as the actual key in hex format, instead of using it as a passphrase to generate one.",
+    val usePassphrase: Boolean by option(
+        "-p", "--passphrase",
+        help = "Treats the input as a passphrase to derive from, instead of reading the actual key in hex format",
     ).nullableFlag().default(false)
 
     val imagePath: Path by option(
@@ -112,13 +114,13 @@ class ShowCommand : CliktCommand() {
     */
     private fun getKey(): Key {
         val value = when {
-            isKey -> readlnOrNull()
+            !usePassphrase -> readlnOrNull()
             terminal.terminalInfo.interactive -> terminal.prompt("Enter a passphrase", hideInput = true).also { echo() }
             else -> readlnOrNull()
         } ?: exitError("Could not read credential.")
 
         return runCatching {
-            if (isKey) Key(value) else Key.generate(value)
+            if (usePassphrase) Key.generate(value) else Key(value)
         }.getOrElse {
             exitError("Could not parse key.")
         }
