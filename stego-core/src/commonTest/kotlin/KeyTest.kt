@@ -13,7 +13,6 @@ class KeyTest : FunSpec({
 
     test("Algorithm values are extracted correctly") {
         exampleKey.bitmask shouldBe 0x01010100u
-        exampleKey.seed shouldBe "b2b3b86ff88ef6c4".hexToLong()
         exampleKey.challenge shouldBe "e7f328da".hexToInt()
     }
 

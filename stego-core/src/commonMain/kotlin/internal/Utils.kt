@@ -2,17 +2,6 @@ package io.github.jadarma.stego.core.internal
 
 import io.github.jadarma.stego.core.*
 import kotlinx.serialization.cbor.Cbor
-import kotlin.random.Random
-
-/**
- * Using the [key] as a seed, shuffle the pixel order of this image.
- * Returns an array the same size as the image, containing the indexes of pixels to read in a pseudo-random order.
- */
-internal fun Image.shufflePixels(key: Key): IntArray {
-    val indices = IntArray(pixels.size) { it }
-    indices.shuffle(Random(key.seed))
-    return indices
-}
 
 /** Calculates the maximum number of bytes that can be stored in the image using the [key]. */
 internal fun Image.capacity(key: Key): Int = minOf(

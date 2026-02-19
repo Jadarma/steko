@@ -8,7 +8,6 @@ import kotlinx.io.bytestring.ByteString
 import kotlinx.io.readTo
 import kotlinx.io.readUInt
 import kotlinx.io.writeUInt
-import kotlin.random.Random
 
 /**
  * A key that can be used to embed or extract a hidden, encrypted payload inside pixel data.
@@ -23,14 +22,11 @@ class Key(bytes: ByteArray) {
     /** Construct a key by decoding it from its [hexString] representation. */
     constructor(hexString: String) : this(hexString.hexToByteArray())
 
-    /** The bits to use from the RGBA pixel data. */
-    internal val bitmask: UInt
-
-    /** The seed to generate pseudo-random pixel order from. */
-    internal val seed: Long
-
     /** The cryptographic key used to encrypt and decrypt the payload. */
     internal val aesKey: AES.GCM.Key
+
+    /** The bits to use from the RGBA pixel data. */
+    internal val bitmask: UInt
 
     /** The windowed XOR over the hash of the key, used as a preflight check. */
     internal val challenge: Int
@@ -40,8 +36,6 @@ class Key(bytes: ByteArray) {
         Buffer().use { buffer ->
             buffer.write(bytes)
             bitmask = buffer.readUInt()
-            buffer.write(bytes, UInt.SIZE_BYTES, Long.SIZE_BYTES)
-            seed = buffer.readLong()
         }
         require(bitmask != 0u) { "The bitmask requires at least one bit to be set." }
         Buffer().use { buffer ->
