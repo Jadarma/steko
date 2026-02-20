@@ -18,6 +18,7 @@ kotlin {
     macosArm64()
 
     compilerOptions {
+        explicitApi()
         optIn.addAll(
             "kotlinx.serialization.ExperimentalSerializationApi"
         )

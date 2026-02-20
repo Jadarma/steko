@@ -13,11 +13,12 @@ import kotlin.random.nextUInt
  * @property height The width of the image in pixels.
  * @property pixels The pixel values in RGBA format.
  */
-class Image(
-    val width: Int,
-    val height: Int,
-    val pixels: UIntArray,
+public class Image(
+    public val width: Int,
+    public val height: Int,
+    public val pixels: UIntArray,
 ) {
+
     init {
         require(pixels.size == width * height) { "Pixel count does not match resolution." }
     }
@@ -35,7 +36,7 @@ class Image(
      * @throws IndexOutOfBoundsException If the payload cannot fit inside this image.
      * @return This same instance.
      */
-    fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image {
+    public fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image {
         val encrypted = key.encrypt(payload.encodeToByteArray())
         val requiredCapacity = Int.SIZE_BYTES * 2 + encrypted.size
         val thisCapacity = this.capacity(key)
@@ -63,7 +64,7 @@ class Image(
      *
      * @return Either type of payload, as specified by the carrier image, or `null` if the key doesn't fit.
      */
-    fun show(key: Key): StegoPayload? {
+    public fun show(key: Key): StegoPayload? {
         val (isRaw, data) = showInternal(key) ?: return null
         return if (isRaw) RawPayload(data)
         else runCatching { cborFormat.decodeFromByteArray(Payload.serializer(), data) }.getOrNull()
@@ -77,7 +78,7 @@ class Image(
      *
      * @return The deserialized type, or `null` if the key doesn't fit. Note this does _not_ catch [convert] exceptions.
      */
-    fun <T : Any> show(key: Key, convert: (ByteArray) -> T): T? {
+    public fun <T : Any> show(key: Key, convert: (ByteArray) -> T): T? {
         val data = showInternal(key)?.second ?: return null
         return convert(data)
     }
@@ -106,7 +107,7 @@ class Image(
     }
 
     /** Create a new image with the current data. */
-    fun copy(): Image = Image(width, height, pixels.copyOf())
+    public fun copy(): Image = Image(width, height, pixels.copyOf())
 
-    companion object
+    public companion object
 }

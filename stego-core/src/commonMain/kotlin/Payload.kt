@@ -5,7 +5,7 @@ import kotlinx.serialization.cbor.CborArray
 import kotlinx.serialization.cbor.ObjectTags
 
 /** Marker interface for payloads hidden by Stego. */
-sealed interface StegoPayload
+public sealed interface StegoPayload
 
 /**
  * The default payload the Stego manages.
@@ -18,16 +18,16 @@ sealed interface StegoPayload
 @CborArray
 @ObjectTags(0x53544547uL) // "STEG" Magic identifier for double-checking.
 @Serializable
-class Payload(
-    val message: String? = null,
-    val attachments: Map<String, ByteArray> = emptyMap(),
+public class Payload(
+    public val message: String? = null,
+    public val attachments: Map<String, ByteArray> = emptyMap(),
 ) : StegoPayload {
 
     /** Construct a payload containing only a message. */
-    constructor(message: String) : this(message = message, attachments = emptyMap())
+    public constructor(message: String) : this(message = message, attachments = emptyMap())
 
     /** Construct a payload containing only attachments. */
-    constructor(attachments: Map<String, ByteArray>) : this(message = null, attachments = attachments)
+    public constructor(attachments: Map<String, ByteArray>) : this(message = null, attachments = attachments)
 
     init {
         require(message != null || attachments.isNotEmpty()) { "Payload cannot be empty." }
@@ -48,7 +48,7 @@ class Payload(
  *
  * @property data The raw bytes of the payload.
  */
-value class RawPayload(val data: ByteArray) : StegoPayload {
+public value class RawPayload(public val data: ByteArray) : StegoPayload {
 
     init {
         require(data.isNotEmpty()) { "Payload cannot be empty." }
