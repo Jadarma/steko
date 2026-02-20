@@ -1,5 +1,6 @@
 package io.github.jadarma.stego.core.internal
 
+import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import io.github.jadarma.stego.core.*
 import kotlinx.serialization.cbor.Cbor
 
@@ -25,6 +26,18 @@ internal fun Key.maskedBits(): IntArray = IntArray(bitmask.countOneBits()).apply
         this[--index] = bitIndex - 1
     }
 }
+
+/** Encrypts the [plainText] with this key. */
+internal fun Key.encrypt(plainText: ByteArray): ByteArray =
+    aesKey
+        .cipher(tagSize = 128.bits)
+        .encryptBlocking(plainText)
+
+/** Decrypts the [cypherText] with this key. */
+internal fun Key.decrypt(cypherText: ByteArray): ByteArray =
+    aesKey
+        .cipher(tagSize = 128.bits)
+        .decryptBlocking(cypherText)
 
 /** Encode the payload to a byte array depending on its type. */
 internal fun StegoPayload.encodeToByteArray(): ByteArray = when (this) {

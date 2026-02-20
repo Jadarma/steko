@@ -1,13 +1,9 @@
 package io.github.jadarma.stego.core
 
 import dev.whyoleg.cryptography.CryptographySystem
-import io.github.jadarma.stego.core.internal.StegoSink
-import io.github.jadarma.stego.core.internal.StegoSource
-import io.github.jadarma.stego.core.internal.capacity
-import io.github.jadarma.stego.core.internal.cborFormat
-import io.github.jadarma.stego.core.internal.encodeToByteArray
-import kotlinx.io.*
-import kotlinx.serialization.cbor.Cbor
+import io.github.jadarma.stego.core.internal.*
+import kotlinx.io.buffered
+import kotlinx.io.readByteArray
 import kotlin.math.absoluteValue
 import kotlin.random.nextUInt
 
@@ -40,7 +36,7 @@ class Image(
      * @return This same instance.
      */
     fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image {
-        val encrypted = key.aesKey.cipher().encryptBlocking(payload.encodeToByteArray())
+        val encrypted = key.encrypt(payload.encodeToByteArray())
         val requiredCapacity = Int.SIZE_BYTES * 2 + encrypted.size
         val thisCapacity = this.capacity(key)
         if (requiredCapacity > thisCapacity) {
@@ -97,7 +93,7 @@ class Image(
         val length = source.readInt()
         val isRaw = length < 0
         val data = source.readByteArray(length.absoluteValue)
-        isRaw to key.aesKey.cipher().decryptBlocking(data)
+        isRaw to key.decrypt(data)
     }.getOrNull()
 
     /** Modifies the current image, adding random data over bits specified by the [bitmask]. */
