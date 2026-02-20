@@ -32,8 +32,12 @@ kotlin {
         target.binaries.executable {
             baseName = "stego"
             entryPoint = "io.github.jadarma.stego.cli.main"
+        }
 
-            if(target.name.contains("linux")) {
+        // On Linux, do not link any shared libraries that aren't needed.
+        // This is especially useful for NixOS.
+        if(target.name.startsWith("linux")) {
+            target.binaries.all {
                 linkerOpts("-Wl,--as-needed")
             }
         }

@@ -13,9 +13,19 @@ repositories {
 }
 
 kotlin {
-    linuxX64()
-    linuxArm64()
-    macosArm64()
+    listOf(
+        linuxX64(),
+        linuxArm64(),
+        macosArm64(),
+    ).forEach { target ->
+        // On Linux, do not link any shared libraries that aren't needed.
+        // This is especially useful for NixOS.
+        if(target.name.startsWith("linux")) {
+            target.binaries.all {
+                linkerOpts("-Wl,--as-needed")
+            }
+        }
+    }
 
     compilerOptions {
         explicitApi()
