@@ -32,6 +32,10 @@ kotlin {
         target.binaries.executable {
             baseName = "stego"
             entryPoint = "io.github.jadarma.stego.cli.main"
+
+            if(target.name.contains("linux")) {
+                linkerOpts("-Wl,--as-needed")
+            }
         }
     }
 
