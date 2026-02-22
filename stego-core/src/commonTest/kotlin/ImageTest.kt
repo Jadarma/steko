@@ -1,0 +1,78 @@
+package io.github.jadarma.stego.core
+
+import com.goncalossilva.resources.Resource
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSingleElement
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+
+class ImageTest : FunSpec({
+
+    test("Constructor is validated") {
+        shouldThrow<IllegalArgumentException> { Image(0, 1, uintArrayOf(0u)) }
+        shouldThrow<IllegalArgumentException> { Image(1, 0, uintArrayOf(0u)) }
+        shouldThrow<IllegalArgumentException> { Image(-1, -1, uintArrayOf(0u)) }
+        shouldThrow<IllegalArgumentException> { Image(1, 1, uintArrayOf()) }
+        shouldThrow<IllegalArgumentException> { Image(2, 1, uintArrayOf(0u)) }
+        shouldNotThrowAny { Image(1, 2, uintArrayOf(0u, 1u)) }
+    }
+
+    test("Copying the image copies the buffer") {
+        val imageA = Image(1, 2, uintArrayOf(0u, 1u))
+        val imageB = imageA.copy()
+        imageB.width shouldBe imageA.width
+        imageB.height shouldBe imageA.height
+        imageB.pixels shouldHaveSize imageA.pixels.size
+        imageB.pixels[0] shouldBe 0u
+        imageA.pixels[0] = 42u
+        imageB.pixels[0] shouldBe 0u
+    }
+
+    context("Serialization") {
+
+        test("Can read from and write to RGBA") {
+            val raw = Resource("examples/attachments/original.rgba").readBytes()
+            val decoded = shouldNotThrowAny { Image.decodeFromRgba(raw) }
+
+            withClue("Wrong default size values") {
+                decoded.width shouldBe 768 * 512
+                decoded.height shouldBe 1
+            }
+
+            val encoded = decoded.encodeToRgba()
+
+            withClue("Codec changed the data") {
+                encoded shouldHaveSize raw.size
+                raw contentEquals encoded shouldBe true
+            }
+        }
+
+        test("Pixel data is validated") {
+            shouldThrow<IllegalArgumentException> { Image.decodeFromRgba(byteArrayOf()) }
+            shouldThrow<IllegalArgumentException> { Image.decodeFromRgba(byteArrayOf(1)) }
+            shouldThrow<IllegalArgumentException> { Image.decodeFromRgba(byteArrayOf(1, 2)) }
+            shouldThrow<IllegalArgumentException> { Image.decodeFromRgba(byteArrayOf(1, 2, 3)) }
+            val image = shouldNotThrowAny { Image.decodeFromRgba(byteArrayOf(1, 2, 3, 4)) }
+            image.width shouldBe 1
+            image.height shouldBe 1
+            image.pixels.shouldHaveSingleElement(0x01020304u)
+        }
+
+        test("Optional size parameter is validated") {
+            val raw = Resource("examples/attachments/original.rgba").readBytes()
+            shouldThrow<IllegalArgumentException> {
+                Image.decodeFromRgba(raw, 42 to 1337)
+            }
+            shouldNotThrowAny {
+                Image.decodeFromRgba(raw, 768 to 512)
+            }
+            shouldNotThrowAny {
+                // Technically wrong but still a valid image, that is a user error.
+                Image.decodeFromRgba(raw, 512 to 768)
+            }
+        }
+    }
+})

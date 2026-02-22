@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.testResources)
     alias(libs.plugins.kotest)
     alias(libs.plugins.ksp)
 }
@@ -41,6 +42,7 @@ kotlin {
             implementation(libs.kotlin.serialization.cbor)
         }
         commonTest.dependencies {
+            implementation(libs.kotlin.testResources)
             implementation(libs.kotest.engine)
             implementation(libs.kotest.assertions)
             implementation(libs.kotlin.cryptography.optimalProvider)
@@ -49,7 +51,7 @@ kotlin {
 }
 
 tasks.withType<Test>().configureEach {
-    systemProperty("kotest.framework.config.fqn", "io.github.jadarma.stego.core.TestConfig")
+    systemProperty("kotest.framework.config.fqn", "io.github.jadarma.stego.core.test.TestConfig")
 
     logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
     outputs.upToDateWhen { false }

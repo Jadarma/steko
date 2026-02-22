@@ -2,8 +2,7 @@ package io.github.jadarma.stego.core
 
 import dev.whyoleg.cryptography.CryptographySystem
 import io.github.jadarma.stego.core.internal.*
-import kotlinx.io.buffered
-import kotlinx.io.readByteArray
+import kotlinx.io.*
 import kotlin.math.absoluteValue
 import kotlin.random.nextUInt
 
@@ -20,6 +19,9 @@ public class Image(
 ) {
 
     init {
+        require(pixels.isNotEmpty()) { "Image is empty." }
+        require(width > 0) { "Width must be positive." }
+        require(height > 0) { "Height must be positive." }
         require(pixels.size == width * height) { "Pixel count does not match resolution." }
     }
 
@@ -83,6 +85,20 @@ public class Image(
         return convert(data)
     }
 
+    /** Create a new image with the current data. */
+    public fun copy(): Image = Image(width, height, pixels.copyOf())
+
+    /** Encodes the image into a RAW pixel sequence in RGBA format. */
+    public fun encodeToRgba(): ByteArray = ByteArray(pixels.size * UInt.SIZE_BYTES).apply {
+        var index = 0
+        val buffer = Buffer()
+        for (pixel in pixels) {
+            buffer.writeUInt(pixel)
+            buffer.readTo(this, index, index + UInt.SIZE_BYTES)
+            index += UInt.SIZE_BYTES
+        }
+    }
+
     /**
      * Attempt to use the [key] to extract a payload.
      * Returns whether the payload encoded that it should be interpreted as _RAW_ and the body, or `null` if the key
@@ -106,8 +122,40 @@ public class Image(
         }
     }
 
-    /** Create a new image with the current data. */
-    public fun copy(): Image = Image(width, height, pixels.copyOf())
+    public companion object {
 
-    public companion object
+        /**
+         * Decodes an image from raw RGBA values. Assumes 8-bit channel depth.
+         *
+         * @param data The raw RGBA values, in order, as a byte string.
+         * @param size The size of the image, in width and height, if known.
+         *             Setting the value helps when encoding to other formats.
+         *             By default, acts like a RAW format, and assumes a single row of pixels.
+         *
+         * @throws IllegalArgumentException If the [data] cannot be perfectly divided into 32-bit values, or the size does not
+         *                                  match the pixel count.
+         */
+        public fun decodeFromRgba(data: ByteArray, size: Pair<Int, Int>? = null): Image {
+            require(data.size % UInt.SIZE_BYTES == 0) { "Image data should be multiple of 4 bytes." }
+
+            val pixelCount = data.size / UInt.SIZE_BYTES
+            val width = size?.first ?: pixelCount
+            val height = size?.second ?: 1
+            val channels = 4
+
+            require(width > 0 && height > 0) { "Image sizes must be positive." }
+            require(width * height == pixelCount) { "Size ${width}x$height is wrong: $pixelCount total pixels." }
+
+            val buffer = Buffer()
+
+            return Image(
+                width = width,
+                height = height,
+                pixels = UIntArray(pixelCount) { index ->
+                    repeat(4) { channel -> buffer.writeByte(data[index * channels + channel]) }
+                    buffer.readUInt()
+                }
+            )
+        }
+    }
 }
