@@ -36,11 +36,7 @@ public class Key(bytes: ByteArray) {
         require(bitmask != 0u) { "The bitmask requires at least one bit to be set." }
         Buffer().use { buffer ->
             buffer.write(hasher.hashBlocking(bytes))
-            var acc = 0
-            repeat(HASH_SIZE_BYTES / Int.SIZE_BITS) {
-                acc = acc xor buffer.readInt()
-            }
-            challenge = acc
+            challenge = IntArray(HASH_SIZE_BYTES / Int.SIZE_BYTES) { buffer.readInt() }.reduce(Int::xor)
         }
         aesKey = keyDecoder.decodeFromByteArrayBlocking(AES.Key.Format.RAW, bytes)
     }
