@@ -3,6 +3,11 @@
 A simple and secure steganography tool using AES, the LSB method and pseudorandom pixel order to hide payloads in
 lossless image formats.
 
+## 📜 Documentation
+
+- [**Algorithm Specification**](docs/algorithm.md) - Describes implementation steps.
+- [**Security**](docs/security.md) - Comments on robustness.
+
 ## 📚 Lore 
 
 **When did this start?**
