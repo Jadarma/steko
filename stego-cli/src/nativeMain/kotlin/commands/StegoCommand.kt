@@ -5,8 +5,12 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.installMordantMarkdown
 import com.github.ajalt.clikt.output.MordantMarkdownHelpFormatter
 import com.github.ajalt.clikt.parameters.options.versionOption
+import io.github.jadarma.stego.cli.util.FileSystem
+import io.github.jadarma.stego.cli.util.RealFileSystem
 
-class StegoCommand : CliktCommand("stego") {
+class StegoCommand(
+    private val fileSystem: FileSystem = RealFileSystem,
+) : CliktCommand("stego") {
 
     override val printHelpOnEmptyArgs: Boolean = true
 
@@ -26,5 +30,7 @@ class StegoCommand : CliktCommand("stego") {
         }
     }
 
-    override fun run() = Unit
+    override fun run() {
+        currentContext.findOrSetObject("fs") { fileSystem }
+    }
 }

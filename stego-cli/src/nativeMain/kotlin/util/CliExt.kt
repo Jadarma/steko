@@ -11,9 +11,11 @@ import com.github.ajalt.clikt.parameters.options.OptionDelegate
 import com.github.ajalt.clikt.parameters.options.OptionTransformContext
 import com.github.ajalt.clikt.parameters.options.OptionValidator
 import com.github.ajalt.clikt.parameters.options.OptionWithValues
+import io.github.jadarma.stego.core.Image
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.toCValues
+import kotlinx.io.files.Path
 import platform.posix.write
 
 /**
@@ -65,3 +67,60 @@ inline fun <AllT, ValueT> ProcessedArgument<AllT, ValueT>.validateCatching(
         }
     }
 )
+
+/**
+ * Reads all bytes contained in the file at the given [path].
+ *
+ * @throws ProgramResult If the path is a directory, not a regular file, or cannot be stored in a [ByteArray]
+ *                       (also reports the error to _STDOUT_).
+ */
+context(_: BaseCliktCommand<*>)
+fun FileSystem.readFile(path: Path): ByteArray {
+    val meta = stat(path) ?: exitError("Cannot read file: $path")
+    if (meta.isDirectory) exitError("Expected file path is a directory: $path")
+    if (meta.isRegularFile.not()) exitError("Expected file path is not a regular file: $path")
+    if (meta.size >= Int.MAX_VALUE) exitError("File exceeds 2GB: $path")
+    return runCatching { read(path) }.getOrElse { exitError("Could not read file: $path") }
+}
+
+/**
+ * Attempts to write all the [data] into a file at a given [path].
+ * If the file does not exist, it will be created, if the file already exists, it will be overwritten.
+ *
+ * @throws ProgramResult If the data was not successfully written for any reason (also reports the error to _STDOUT_).
+ */
+context(_: BaseCliktCommand<*>)
+fun FileSystem.writeFile(path: Path, data: ByteArray) {
+    runCatching { write(path, data) }.onFailure { exitError("Could not write file to: $path") }
+}
+
+/**
+ * Loads and decodes the image from the given [path] on disk.
+ *
+ * @throws ProgramResult If the data was not successfully loaded for any reason (also reports the error to _STDOUT_).
+ */
+@OptIn(ExperimentalForeignApi::class)
+context(_: BaseCliktCommand<*>)
+fun Image.Companion.load(fileSystem: FileSystem, path: Path): Image = runCatching {
+    when (val extension = path.extension) {
+        "rgba" -> Image.decodeFromRgba(fileSystem.readFile(path))
+        "png" -> Image.decodeFromPng(fileSystem.readFile(path))
+        else -> exitError("Unknown image extension: $extension")
+    }
+}.getOrElse { exitError("Could not load image: $path") }
+
+/**
+ * Encodes and writes this image to the given [path] on disk.
+ *
+ * @throws ProgramResult If the data was not successfully written for any reason (also reports the error to _STDOUT_).
+ */
+@OptIn(ExperimentalForeignApi::class)
+context(_: BaseCliktCommand<*>)
+fun Image.write(fileSystem: FileSystem, path: Path): Unit = runCatching {
+    val encoded = when (val extension = path.extension) {
+        "rgba" -> this.encodeToRgba()
+        "png" -> this.encodeToPng()
+        else -> exitError("Unknown image extension: $extension")
+    }
+    fileSystem.writeFile(path, encoded)
+}.getOrElse { exitError("Could not write image: $path") }

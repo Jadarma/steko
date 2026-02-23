@@ -10,11 +10,10 @@ import com.github.ajalt.clikt.parameters.options.Option
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parsers.OptionInvocation
+import io.github.jadarma.stego.cli.util.FileSystem
 import io.github.jadarma.stego.cli.util.checkFile
 import io.github.jadarma.stego.cli.util.extension
-import io.github.jadarma.stego.cli.util.validateCatching
 import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
 
 /** Provides paths for image IO operations. */
 class ImageFileOptions : OptionGroup(
@@ -27,9 +26,7 @@ class ImageFileOptions : OptionGroup(
         completionCandidates = CompletionCandidates.Path,
         help = "The path to the original image. _(readonly)_",
         helpTags = mapOf("Formats" to ".png, .rgba"),
-    )
-        .convert { Path(it) }
-        .validateCatching { SystemFileSystem.checkFile(it) }
+    ).convert { Path(it) }
 
     private val outputFile: Path? by option(
         "-o", "--out",
@@ -49,9 +46,7 @@ class ImageFileOptions : OptionGroup(
             Hides the payload in-place, reading the original image and writing it back to the same path.
             Doubles as explicit user consent, and is mutually exclusive with **--in** and **--out**.
         """.trimIndent(),
-    )
-        .convert { Path(it) }
-        .validateCatching { SystemFileSystem.checkFile(it) }
+    ).convert { Path(it) }
 
     override fun finalize(
         context: Context,
@@ -74,11 +69,18 @@ class ImageFileOptions : OptionGroup(
                 throw UsageError("setting ${info("--in")} and ${info("--out")} to same path is considered an error. Did you mean to use ${info("--edit")}?")
             }
         }
-        if(input.extension !in setOf("png","rgba")) {
+        if (input.extension !in setOf("png", "rgba")) {
             throw UsageError("Unknown file extension, must be either PNG or RGBA.")
         }
-        if(input.extension != output.extension) {
+        if (input.extension != output.extension) {
             throw UsageError("The ${info("--in")} and ${info("--out")} formats must match.")
+        }
+
+        val fileSystem = context.findObject<FileSystem>("fs") ?: error("No filesystem configured")
+        runCatching {
+            fileSystem.checkFile(input)
+        }.getOrElse { cause ->
+            throw UsageError(cause.message ?: "Invalid file: $input")
         }
     }
 

@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
@@ -19,12 +20,13 @@ import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
 import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
+import io.github.jadarma.stego.cli.util.FileSystem
 
 /** Subcommand for hiding a payload inside an image file. */
 class HideCommand : CliktCommand("hide") {
 
     override val printHelpOnEmptyArgs: Boolean = true
+    val fileSystem by requireObject<FileSystem>("fs")
 
     override fun help(context: Context): String = """
         Hide a message and / or file attachments in an image.
@@ -74,7 +76,7 @@ class HideCommand : CliktCommand("hide") {
     )
         .convert { Path(it) }
         .multiple()
-        .validateCatching { paths -> paths.forEach { SystemFileSystem.checkFile(it) } }
+        .validateCatching { paths -> paths.forEach { fileSystem.checkFile(it) } }
 
     override fun run() {
         if (message == null && attachments.isEmpty()) {
@@ -83,11 +85,11 @@ class HideCommand : CliktCommand("hide") {
         }
 
         val key = getKey()
-        val image = Image.load(imageFiles.input)
+        val image = Image.load(fileSystem, imageFiles.input)
 
         val payload = Payload(
             message = message,
-            attachments = attachments.associate { it.name to SystemFileSystem.readFile(it) },
+            attachments = attachments.associate { it.name to fileSystem.readFile(it) },
         )
 
         image
@@ -99,7 +101,7 @@ class HideCommand : CliktCommand("hide") {
                 )
                 exitError("Unexpected error occurred.", 4)
             }
-            .write(imageFiles.output)
+            .write(fileSystem, imageFiles.output)
 
         echo(key.toHexString())
     }

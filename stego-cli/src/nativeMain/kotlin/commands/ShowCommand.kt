@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
@@ -17,11 +18,12 @@ import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
 import io.github.jadarma.stego.core.RawPayload
 import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
 
 class ShowCommand : CliktCommand() {
 
     override val printHelpOnEmptyArgs: Boolean = true
+
+    val fileSystem by requireObject<FileSystem>("fs")
 
     override fun help(context: Context): String {
         val info = context.terminal.theme.info
@@ -71,7 +73,7 @@ class ShowCommand : CliktCommand() {
         """.trimIndent(),
     )
         .convert { Path(it) }
-        .validateCatching { path -> path.takeUnless { it.toString() == "-" }?.let(SystemFileSystem::checkDirectory) }
+        .validateCatching { path -> path.takeUnless { it.toString() == "-" }?.let(fileSystem::checkDirectory) }
 
     val imagePath: Path by argument(
         name = "image",
@@ -80,11 +82,11 @@ class ShowCommand : CliktCommand() {
         completionCandidates = CompletionCandidates.Path,
     )
         .convert { Path(it) }
-        .validateCatching { SystemFileSystem.checkFile(it) }
+        .validateCatching { fileSystem.checkFile(it) }
 
     override fun run() {
         val key = getKey()
-        val image = Image.load(imagePath)
+        val image = Image.load(fileSystem, imagePath)
         val payload = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
 
         if (payload is RawPayload) {
@@ -106,7 +108,7 @@ class ShowCommand : CliktCommand() {
         val outDir = outputDirectory
         if (outDir != null) {
             attachments.forEach { (name, content) ->
-                SystemFileSystem.writeFile(Path(outDir, name), content)
+                fileSystem.writeFile(Path(outDir, name), content)
             }
         }
 
