@@ -1,21 +1,24 @@
 package io.github.jadarma.stego.cli.commands
 
+import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.convert
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import io.github.jadarma.stego.cli.options.EncodingOptions
 import io.github.jadarma.stego.cli.options.ImageFileOptions
-import io.github.jadarma.stego.cli.options.PayloadOptions
-import io.github.jadarma.stego.cli.util.exitError
-import io.github.jadarma.stego.cli.util.load
-import io.github.jadarma.stego.cli.util.readFile
-import io.github.jadarma.stego.cli.util.write
+import io.github.jadarma.stego.cli.util.*
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
+import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 
 /** Subcommand for hiding a payload inside an image file. */
@@ -38,30 +41,50 @@ class HideCommand : CliktCommand("hide") {
             ${header("Examples")}:
          
             - Hide a text message:\
-              ${example("stego hide -m 'Hello' -i in.png -o out.png")}
+              ${example("stego hide -i in.png -o out.png -m 'Hello'")}
             
             - Hide a file:\
-              ${example("stego hide -a secret.md -i in.png -o out.png")}
+              ${example("stego hide -i in.png -o out.png secret.md")}
               
             - Edit the image in-place:\
-              ${example("stego hide -a secret.md -e image.png")}
+              ${example("stego hide -e image.png secret.md")}
               
             - Use passphrase:\
-              ${example("stego hide -p -m 'Hello' -e image.png")}
+              ${example("stego hide -p -e image.png -m 'Hello'")}
         """.trimIndent()
     }
 
-    val payloads by PayloadOptions()
     val imageFiles by ImageFileOptions()
     val encodingOptions by EncodingOptions()
 
+    val message: String? by option(
+        "-m",
+        "--message",
+        metavar = "text",
+        help = "Hide the given plain-text string.",
+    ).validate { text -> require(text.isNotBlank()) { "Text cannot be empty." } }
+
+    val attachments: List<Path> by argument(
+        name = "attachment",
+        help = "Path to a file to embed as an attachment.",
+        completionCandidates = CompletionCandidates.Path,
+    )
+        .convert { Path(it) }
+        .multiple()
+        .validateCatching { paths -> paths.forEach { SystemFileSystem.checkFile(it) } }
+
     override fun run() {
+        if (message == null && attachments.isEmpty()) {
+            val info = terminal.theme.info
+            throw UsageError("No payload given. Please define a ${info("--message")} and / or pass files as arguments.")
+        }
+
         val key = getKey()
         val image = Image.load(imageFiles.input)
 
         val payload = Payload(
-            message = payloads.message,
-            attachments = payloads.attachments.associate { it.name to SystemFileSystem.readFile(it) },
+            message = message,
+            attachments = attachments.associate { it.name to SystemFileSystem.readFile(it) },
         )
 
         image
