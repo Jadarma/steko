@@ -47,7 +47,7 @@ class ImageFileOptions : OptionGroup(
         completionCandidates = CompletionCandidates.Path,
         help = """
             Hides the payload in-place, reading the original image and writing it back to the same path.
-            Doubles as explicit user consent, and is mutually exclusive with **-i** and **-o**.
+            Doubles as explicit user consent, and is mutually exclusive with **--in** and **--out**.
         """.trimIndent(),
     )
         .convert { Path(it) }

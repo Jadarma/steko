@@ -61,7 +61,10 @@ class HideCommand : CliktCommand("hide") {
         "-m",
         "--message",
         metavar = "text",
-        help = "Hide the given plain-text string.",
+        help = """
+            Hide the given plain-text string.
+            Ideal for short memos or giving instructions for file attachments.
+        """.trimIndent(),
     ).validate { text -> require(text.isNotBlank()) { "Text cannot be empty." } }
 
     val attachments: List<Path> by argument(

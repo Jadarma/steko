@@ -66,8 +66,8 @@ class ShowCommand : CliktCommand() {
         "-o", "--out",
         metavar = "path",
         help = """
-            The directory to write the attachments to. The file(s) will be named according to it's own metadata.
-            The special value '**-**' will instead print the attachment(s) to _STDOUT_, concatenating them.
+            The directory to write the attachments to.
+            The file(s) will be named according to it's own metadata.
         """.trimIndent(),
     )
         .convert { Path(it) }
