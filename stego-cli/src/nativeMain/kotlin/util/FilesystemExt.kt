@@ -66,3 +66,10 @@ fun FileSystem.checkDirectory(path: Path) {
     require(meta != null) { "Directory does not exist: $path" }
     require(meta.isDirectory) { "Expected directory path is a file: $path" }
 }
+
+/** Gets the filename extension or `null` if is not included in the name. */
+val Path.extension: String?
+    get() = name
+        .substringAfterLast('.', "")
+        .lowercase()
+        .takeIf(CharSequence::isNotEmpty)

@@ -1,0 +1,23 @@
+package io.github.jadarma.stego.cli.util
+
+import com.goncalossilva.resources.Resource
+import io.github.jadarma.stego.core.Image
+import io.github.jadarma.stego.core.Image.Companion.decodeFromRgba
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+
+class PNGTest : FunSpec({
+
+        val rgbaImage = decodeFromRgba(Resource("formats/image.rgba").readBytes(), 512 to 512)
+        val pngFile = Resource("formats/image.png").readBytes()
+
+        test("Can encode") {
+            rgbaImage.encodeToPng() contentEquals pngFile shouldBe true
+        }
+        test("Can decode") {
+            val decoded = Image.decodeFromPng(pngFile)
+            decoded.width shouldBe 512
+            decoded.height shouldBe 512
+            decoded.pixels contentEquals rgbaImage.pixels shouldBe true
+        }
+})

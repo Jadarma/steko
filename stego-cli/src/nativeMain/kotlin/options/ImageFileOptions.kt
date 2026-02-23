@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parsers.OptionInvocation
 import io.github.jadarma.stego.cli.util.checkFile
+import io.github.jadarma.stego.cli.util.extension
 import io.github.jadarma.stego.cli.util.validateCatching
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -25,6 +26,7 @@ class ImageFileOptions : OptionGroup(
         metavar = "path",
         completionCandidates = CompletionCandidates.Path,
         help = "The path to the original image. _(readonly)_",
+        helpTags = mapOf("Formats" to ".png, .rgba"),
     )
         .convert { Path(it) }
         .validateCatching { SystemFileSystem.checkFile(it) }
@@ -33,7 +35,10 @@ class ImageFileOptions : OptionGroup(
         "-o", "--out",
         metavar = "path",
         completionCandidates = CompletionCandidates.Path,
-        help = "The path where to write the modified image. _(Overwrites previous data!)_.".trimIndent(),
+        help = """
+            The path where to write the modified image. _(Overwrites previous data!)_.
+            The file extension must match that of the input image.
+        """.trimIndent(),
     ).convert { Path(it) }
 
     private val editFile: Path? by option(
@@ -68,6 +73,12 @@ class ImageFileOptions : OptionGroup(
             if (inputFile == outputFile) {
                 throw UsageError("setting ${info("--in")} and ${info("--out")} to same path is considered an error. Did you mean to use ${info("--edit")}?")
             }
+        }
+        if(input.extension !in setOf("png","rgba")) {
+            throw UsageError("Unknown file extension, must be either PNG or RGBA.")
+        }
+        if(input.extension != output.extension) {
+            throw UsageError("The ${info("--in")} and ${info("--out")} formats must match.")
         }
     }
 
