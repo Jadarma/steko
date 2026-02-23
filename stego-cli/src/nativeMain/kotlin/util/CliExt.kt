@@ -3,6 +3,10 @@ package io.github.jadarma.stego.cli.util
 import com.github.ajalt.clikt.core.BadParameterValue
 import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
+import com.github.ajalt.clikt.parameters.arguments.ArgValidator
+import com.github.ajalt.clikt.parameters.arguments.ArgumentDelegate
+import com.github.ajalt.clikt.parameters.arguments.ArgumentTransformContext
+import com.github.ajalt.clikt.parameters.arguments.ProcessedArgument
 import com.github.ajalt.clikt.parameters.options.OptionDelegate
 import com.github.ajalt.clikt.parameters.options.OptionTransformContext
 import com.github.ajalt.clikt.parameters.options.OptionValidator
@@ -32,7 +36,8 @@ fun printToStdOut(data: ByteArray) {
 /**
  * The [OptionTransformContext] provides a custom implementation for `require`, but it makes it difficult to use any
  * helper functions that don't have access to the same context. This function considers any error inside the [validator]
- * as expected and wraps them in usage errors, like `.convert()` does. */
+ * as expected and wraps them in usage errors, like `.convert()` does.
+ */
 inline fun <AllT, EachT, ValueT> OptionWithValues<AllT, EachT, ValueT>.validateCatching(
     crossinline validator: OptionValidator<AllT & Any>,
 ): OptionDelegate<AllT> = copy(
@@ -44,4 +49,19 @@ inline fun <AllT, EachT, ValueT> OptionWithValues<AllT, EachT, ValueT>.validateC
             throw BadParameterValue(cause.message.orEmpty(), option)
         }
     },
+)
+
+/**
+ * The [ArgumentTransformContext] provides a custom implementation for `require`, but it makes it difficult to use any
+ * helper functions that don't have access to the same context. This function considers any error inside the [validator]
+ * as expected and wraps them in usage errors, like `.convert()` does.
+ */
+inline fun <AllT, ValueT> ProcessedArgument<AllT, ValueT>.validateCatching(
+    crossinline validator: ArgValidator<AllT & Any>,
+): ArgumentDelegate<AllT> = copy(
+    validator = {
+        if (it != null) runCatching { validator(it) }.getOrElse { cause ->
+            throw BadParameterValue(cause.message.orEmpty(), argument)
+        }
+    }
 )

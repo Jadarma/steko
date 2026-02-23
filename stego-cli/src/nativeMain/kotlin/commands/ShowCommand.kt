@@ -1,9 +1,12 @@
 package io.github.jadarma.stego.cli.commands
 
+import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.convert
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.mordant.markdown.Markdown
 import com.github.ajalt.mordant.terminal.Terminal
@@ -44,13 +47,13 @@ class ShowCommand : CliktCommand() {
             ${header("Examples")}:
          
             - Extract a payload:\
-              ${example("stego show -i image.png < secret.key")}
+              ${example("stego show image.png < secret.key")}
             
-            - Use a passphrase:\
-              ${example("stego show -p -i image.png")}
-              
             - Save attachments to disk:\
-              ${example("stego show -i image.png -o /tmp/stego < secret.key")}
+              ${example("stego show -o /tmp/stego image.png < secret.key")}
+
+            - Use a passphrase:\
+              ${example("stego show -p image.png")}              
         """.trimIndent()
     }
 
@@ -59,21 +62,25 @@ class ShowCommand : CliktCommand() {
         help = "Treats the input as a passphrase to derive from, instead of reading the actual key in hex format",
     ).nullableFlag().default(false)
 
-    val imagePath: Path by option(
-        "-i", "--in",
-        help = "Path to the image to attempt to extract a payload from.",
-    ).convert { Path(it) }.required()
-
     val outputDirectory: Path? by option(
         "-o", "--out",
         metavar = "path",
         help = """
-            The directory to write the payload in. The file will be named according to it's own metadata.
-            The special value '**-**' will instead print the payload to _STDOUT_.
+            The directory to write the attachments to. The file(s) will be named according to it's own metadata.
+            The special value '**-**' will instead print the attachment(s) to _STDOUT_, concatenating them.
         """.trimIndent(),
     )
         .convert { Path(it) }
-        .validate { SystemFileSystem.checkDirectory(it) }
+        .validateCatching { path -> path.takeUnless { it.toString() == "-" }?.let(SystemFileSystem::checkDirectory) }
+
+    val imagePath: Path by argument(
+        name = "image",
+        help = "Path to the carrier image to attempt to extract a payload from.",
+        helpTags = mapOf("Formats" to ".png, .rgba"),
+        completionCandidates = CompletionCandidates.Path,
+    )
+        .convert { Path(it) }
+        .validateCatching { SystemFileSystem.checkFile(it) }
 
     override fun run() {
         val key = getKey()
