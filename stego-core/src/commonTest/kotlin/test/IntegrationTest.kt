@@ -1,4 +1,4 @@
-package io.github.jadarma.stego.cli.examples
+package io.github.jadarma.stego.core.test
 
 import com.goncalossilva.resources.Resource
 import io.github.jadarma.stego.core.Image
@@ -15,14 +15,14 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
-class ExampleImagesTest : FunSpec({
+class IntegrationTest : FunSpec({
 
     context("Attachments") {
         val payload = Resource("examples/attachments/anImage.png").readBytes()
         val key = Key("03030300fbc58d4fe7ed6ddb52d442c8318e70b4d197e30c6f32fc6dc955d89e")
 
         test("Can extract normal payloads") {
-            val carrier = Image.loadResource("examples/attachments/normalPayload.png")
+            val carrier = Image.decodeFromRgba(Resource("examples/attachments/normalPayload.rgba"))
             val (name, data) = carrier.show(key).shouldNotBeNull()
                 .shouldBeInstanceOf<Payload>()
                 .attachments.entries.single()
@@ -31,7 +31,7 @@ class ExampleImagesTest : FunSpec({
         }
 
         test("Can extract raw payloads") {
-            val carrier = Image.loadResource("examples/attachments/rawPayload.png")
+            val carrier = Image.decodeFromRgba(Resource("examples/attachments/rawPayload.rgba"))
             carrier.show(key).shouldNotBeNull()
                 .shouldBeInstanceOf<RawPayload>()
                 .data.contentEquals(payload)
@@ -44,7 +44,7 @@ class ExampleImagesTest : FunSpec({
         val keyEntropy = "723089ec870a91fa5f6134abb5dfcc821611f67f0cca16031e6e4aaa"
 
         val samples = listOf("01010100", "00010000", "02000200", "00000001").associate { mask ->
-            Key(mask + keyEntropy) to Image.loadResource("examples/bitmask/0x$mask.png")
+            Key(mask + keyEntropy) to Image.decodeFromRgba(Resource("examples/bitmask/0x$mask.rgba"))
         }
 
         test("Each Key can read its own image") {
@@ -70,7 +70,7 @@ class ExampleImagesTest : FunSpec({
     }
 
     test("Nostradamus - Can extract different messages with different keys") {
-        val nostradamus = Image.loadResource("examples/nostradamus/baboonKnowsAll.png")
+        val nostradamus = Image.decodeFromRgba(Resource("examples/nostradamus/oracle.rgba"))
         val payloadA = "I foresee that Team Red shall be victorious!"
         val payloadB = "In the starts it was written, and so it shall be: Team Blue will prevail!"
         val payloadC = "I play both sides so I always come out on top. It will be of course, a tie!"
