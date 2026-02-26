@@ -1,17 +1,13 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.testResources)
+    alias(libs.plugins.testResources)
     alias(libs.plugins.kotest)
     alias(libs.plugins.ksp)
 }
 
 group = "io.github.jadarma.stego"
 version = "0.1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
 
 kotlin {
     listOf(

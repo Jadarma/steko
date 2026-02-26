@@ -7,6 +7,7 @@ kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrai
 kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
 kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
+toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
 kotlin-cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "kotlin-cryptography" }
@@ -20,9 +21,33 @@ kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref =
 clikt-core = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 clikt-markdown = { module = "com.github.ajalt.clikt:clikt-markdown", version.ref = "clikt" }
 
+gradlePluginDep-kotlin-multiplatform = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
+gradlePluginDep-kotlin-serialization = { module = "org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "kotlin" }
+gradlePluginDep-kotest = { module = "io.kotest:io.kotest.gradle.plugin", version.ref = "kotest" }
+gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.goncalossilva.resources.gradle.plugin", version.ref = "kotlin-testResources" }
+gradlePluginDep-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
+
+[bundles]
+# Bundles all plugins needed in `build-logic` so they can be imported in bulk.
+gradlePlugins = [
+    "gradlePluginDep-kotlin-multiplatform",
+    "gradlePluginDep-kotlin-serialization",
+
+    "gradlePluginDep-kotest",
+    "gradlePluginDep-testResources",
+    "gradlePluginDep-ksp",
+
+    "gradlePluginDep-javaToolchains",
+]
+
+# Plugins in precompiled build scripts are not supported by Gradle (yet?) because they would clash with the classpath.
+# They are given here to still be able to use the alias notation in root project.
+# Actual versions come from the gradlePluginDep bundle.
 [plugins]
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlin-testResources = { id = "com.goncalossilva.resources", version.ref = "kotlin-testResources" }
-kotest = { id = "io.kotest", version.ref = "kotest" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization" }
+testResources = { id = "com.goncalossilva.resources" }
+kotest = { id = "io.kotest" }
+ksp = { id = "com.google.devtools.ksp" }
+javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }
