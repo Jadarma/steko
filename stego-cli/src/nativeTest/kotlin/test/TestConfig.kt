@@ -1,4 +1,4 @@
-package io.github.jadarma.stego.cli
+package io.github.jadarma.stego.cli.test
 
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.engine.concurrency.SpecExecutionMode

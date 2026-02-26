@@ -1,9 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.testResources)
-    alias(libs.plugins.kotest)
-    alias(libs.plugins.ksp)
+    id("conventions.testing")
 }
 
 group = "io.github.jadarma.stego"
@@ -55,17 +53,5 @@ kotlin {
             implementation(libs.clikt.core)
             implementation(libs.clikt.markdown)
         }
-        nativeTest.dependencies {
-            implementation(libs.kotlin.testResources)
-            implementation(libs.kotest.engine)
-            implementation(libs.kotest.assertions)
-        }
     }
-}
-
-tasks.withType<Test>().configureEach {
-    systemProperty("kotest.framework.config.fqn", "io.github.jadarma.stego.cli.TestConfig")
-
-    logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
-    outputs.upToDateWhen { false }
 }
