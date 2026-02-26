@@ -6,22 +6,8 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
-import kotlin.repeat
 
 class RandomTest : FunSpec({
-
-    test("The key can be used as a seed") {
-        val key = Key.generate()
-        val r1 = key.toRandom()
-        val r2 = key.toRandom()
-        r1 shouldNotBeSameInstanceAs r2
-
-        repeat(10_000) { iteration ->
-            withClue("RNG broke after $iteration") {
-                r1.nextInt() shouldBe r2.nextInt()
-            }
-        }
-    }
 
     test("The PRNG is deterministic") {
         //@formatter:off
@@ -35,10 +21,16 @@ class RandomTest : FunSpec({
         )
         //@formatter:on
 
-        val random = Key.generate("hunter2").toRandom()
+        // Seed numbers hardcoded from `hunter` test key.
+        val seeded = Xoshiro256PlusPlus(
+            s0 = -1732996513730013360L,
+            s1 = -8623077560607292810L,
+            s2 = -2134507048688454105L,
+            s3 = -3764376750469939379L,
+        )
         expected.forEachIndexed { index, n ->
             withClue("Did not produce expected value for the index $index.") {
-                random.nextInt() shouldBe n
+                seeded.nextInt() shouldBe n
             }
         }
     }
@@ -48,9 +40,10 @@ class RandomTest : FunSpec({
         val keyA = Key.generate()
         val keyB = Key(keyA.toHexString())
         val keyC = Key.generate()
-        val shuffledByA = image.shufflePixels(keyA)
-        val shuffledByB = image.shufflePixels(keyB)
-        val shuffledByC = image.shufflePixels(keyC)
+
+        val shuffledByA = StegoAlgorithm.createFor(image.pixels, keyA).pixelOrder
+        val shuffledByB = StegoAlgorithm.createFor(image.pixels, keyB).pixelOrder
+        val shuffledByC = StegoAlgorithm.createFor(image.pixels, keyC).pixelOrder
 
         shuffledByA shouldNotBeSameInstanceAs shuffledByB
         shuffledByB shouldNotBeSameInstanceAs shuffledByC

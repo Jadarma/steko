@@ -1,65 +1,50 @@
 package io.github.jadarma.stego.core
 
 import dev.whyoleg.cryptography.CryptographySystem
-import dev.whyoleg.cryptography.algorithms.AES
 import dev.whyoleg.cryptography.algorithms.SHA256
 import kotlinx.io.Buffer
+import kotlinx.io.bytestring.ByteString
+import kotlinx.io.bytestring.hexToByteString
+import kotlinx.io.bytestring.toHexString
 import kotlinx.io.readTo
 
 /**
  * A key that can be used to embed or extract a hidden, encrypted payload inside pixel data.
  *
- * @param bytes The key's binary representation.
+ * @property bytes The key's binary representation.
  */
-public class Key(bytes: ByteArray) {
+public value class Key private constructor(internal val bytes: ByteString) {
 
-    /** Construct a key by decoding it from its [hexString] representation. */
-    public constructor(hexString: String) : this(hexString.hexToByteArray())
+    /** Construct a key from its binary representation. */
+    public constructor(bytes: ByteArray) : this(ByteString(bytes))
 
-    /** The cryptographic key used to encrypt and decrypt the payload. */
-    internal val aesKey: AES.GCM.Key
-
-    /** The bits to use from the RGBA pixel data. */
-    internal val bitmask: Int
-
-    /** The windowed XOR over the hash of the key, used as a preflight check. */
-    internal val challenge: Int
-
-    init {
-        require(bytes.size == SIZE_BYTES) { "Invalid key format. Got ${bytes.size} instead of $SIZE_BYTES bytes." }
-        Buffer().use { buffer ->
-            buffer.write(bytes)
-            bitmask = buffer.readInt()
-        }
-        require(bitmask != 0) { "The bitmask requires at least one bit to be set." }
-        Buffer().use { buffer ->
-            buffer.write(hasher.hashBlocking(bytes))
-            challenge = IntArray(HASH_SIZE_BYTES / Int.SIZE_BYTES) { buffer.readInt() }.reduce(Int::xor)
-        }
-        aesKey = keyDecoder.decodeFromByteArrayBlocking(AES.Key.Format.RAW, bytes)
-    }
+    /** Construct a key from its hexadecimal representation. */
+    public constructor(hex: String) : this(hex.hexToByteString())
 
     /** Encodes the key in its raw binary representation. */
-    public fun toByteArray(): ByteArray = aesKey.encodeToByteArrayBlocking(AES.Key.Format.RAW)
+    public fun toByteArray(): ByteArray = bytes.toByteArray()
 
     /** Encodes the key in its hex-string representation. */
-    public fun toHexString(): String = toByteArray().toHexString()
+    public fun toHexString(): String = bytes.toHexString()
 
-    override fun hashCode(): Int = challenge
-
-    override fun equals(other: Any?): Boolean = when {
-        this === other -> true
-        other == null || this::class != other::class -> false
-        this.challenge != (other as Key).challenge -> false
-        else -> this.toHexString() == other.toHexString()
+    init {
+        require(bytes.size == SIZE_BYTES) {
+            "Invalid key: got ${bytes.size} bytes, expected exactly $SIZE_BYTES."
+        }
+        require(bytes.toByteArray(0, Int.SIZE_BYTES).any { it != 0.toByte() }) {
+            "Invalid key: leading 32 bits are all zero, bitmask impossible to use."
+        }
     }
 
     public companion object {
+
+        /** The size of the binary representation of the key, in bytes. */
         public const val SIZE_BYTES: Int = 32
-        public const val SIZE_BITS: Int = 256
 
-        private const val HASH_SIZE_BYTES: Int = 32
+        /** The size of the binary representation of the key, in bits. */
+        public const val SIZE_BITS: Int = SIZE_BYTES * Byte.SIZE_BITS
 
+        /** The default bitmask to use, LSB of R,G, and B color channels. */
         private const val DEFAULT_BITMASK: Int = 0x01010100
 
         /**
@@ -84,15 +69,14 @@ public class Key(bytes: ByteArray) {
          * Note that when using this mode, the bitmask cannot be changed from the default.
          */
         public fun generate(passphrase: String): Key {
-            val bytes = hasher.hashBlocking(passphrase.encodeToByteArray())
+            val bytes = CryptographySystem.getDefaultProvider()
+                .get(SHA256).hasher()
+                .hashBlocking(passphrase.encodeToByteArray())
             Buffer().use {
                 it.writeInt(DEFAULT_BITMASK)
                 it.readTo(bytes, 0, Int.SIZE_BYTES)
             }
             return Key(bytes)
         }
-
-        private val keyDecoder by lazy { CryptographySystem.getDefaultProvider().get(AES.GCM).keyDecoder() }
-        private val hasher by lazy { CryptographySystem.getDefaultProvider().get(SHA256).hasher() }
     }
 }

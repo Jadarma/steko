@@ -1,12 +1,14 @@
 package io.github.jadarma.stego.core
 
-import dev.whyoleg.cryptography.CryptographySystem
-import io.github.jadarma.stego.core.internal.*
-import kotlinx.io.*
-import kotlin.math.absoluteValue
+import io.github.jadarma.stego.core.internal.StegoAlgorithm
+import io.github.jadarma.stego.core.internal.cborFormat
+import io.github.jadarma.stego.core.internal.encodeToByteArray
+import kotlinx.io.Buffer
+import kotlinx.io.readTo
 
 /**
  * An image loaded in memory.
+ *
  * @property width The width of the image in pixels.
  * @property height The width of the image in pixels.
  * @property pixels The pixel values in RGBA format.
@@ -37,25 +39,12 @@ public class Image(
      * @throws IndexOutOfBoundsException If the payload cannot fit inside this image.
      * @return This same instance.
      */
-    public fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image {
-        val encrypted = key.encrypt(payload.encodeToByteArray())
-        val requiredCapacity = Int.SIZE_BYTES * 2 + encrypted.size
-        val thisCapacity = this.capacity(key)
-        if (requiredCapacity > thisCapacity) {
-            throw IndexOutOfBoundsException("(${requiredCapacity}B > ${thisCapacity}B)")
-        }
-
-        if (noise) noise(key.bitmask)
-        val isRawPayload = payload is RawPayload
-        val length = if (isRawPayload) -encrypted.size else encrypted.size
-
-        StegoSink(this, key).buffered().use { sink ->
-            sink.writeInt(key.challenge)
-            sink.writeInt(length)
-            sink.write(encrypted)
-        }
-
-        return this
+    public fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image = apply {
+        StegoAlgorithm.createFor(pixels, key).hide(
+            payload = payload.encodeToByteArray(),
+            rawPayload = payload is RawPayload,
+            noise = noise,
+        )
     }
 
     /**
@@ -66,7 +55,7 @@ public class Image(
      * @return Either type of payload, as specified by the carrier image, or `null` if the key doesn't fit.
      */
     public fun show(key: Key): StegoPayload? {
-        val (isRaw, data) = showInternal(key) ?: return null
+        val (data, isRaw) = StegoAlgorithm.createFor(pixels, key).show() ?: return null
         return if (isRaw) RawPayload(data)
         else runCatching { cborFormat.decodeFromByteArray(Payload.serializer(), data) }.getOrNull()
     }
@@ -80,7 +69,7 @@ public class Image(
      * @return The deserialized type, or `null` if the key doesn't fit. Note this does _not_ catch [convert] exceptions.
      */
     public fun <T : Any> show(key: Key, convert: (ByteArray) -> T): T? {
-        val data = showInternal(key)?.second ?: return null
+        val data = StegoAlgorithm.createFor(pixels, key).show()?.first ?: return null
         return convert(data)
     }
 
@@ -98,29 +87,6 @@ public class Image(
         }
     }
 
-    /**
-     * Attempt to use the [key] to extract a payload.
-     * Returns whether the payload encoded that it should be interpreted as _RAW_ and the body, or `null` if the key
-     * does not fit.
-     */
-    private fun showInternal(key: Key): Pair<Boolean, ByteArray>? = runCatching {
-        val source = StegoSource(this, key).buffered()
-        check(source.readInt() == key.challenge)
-        val length = source.readInt()
-        val isRaw = length < 0
-        val data = source.readByteArray(length.absoluteValue)
-        isRaw to key.decrypt(data)
-    }.getOrNull()
-
-    /** Modifies the current image, adding random data over bits specified by the [bitmask]. */
-    private fun noise(bitmask: Int) {
-        val invMask = bitmask.inv()
-        val random = CryptographySystem.getDefaultRandom()
-        for (index in pixels.indices) {
-            pixels[index] = (pixels[index] and invMask) or (random.nextInt() and bitmask)
-        }
-    }
-
     public companion object {
 
         /**
@@ -131,8 +97,8 @@ public class Image(
          *             Setting the value helps when encoding to other formats.
          *             By default, acts like a RAW format, and assumes a single row of pixels.
          *
-         * @throws IllegalArgumentException If the [data] cannot be perfectly divided into 32-bit values, or the size does not
-         *                                  match the pixel count.
+         * @throws IllegalArgumentException If the [data] cannot be perfectly divided into 32-bit values, or the size
+         *                                  does not match the pixel count.
          */
         public fun decodeFromRgba(data: ByteArray, size: Pair<Int, Int>? = null): Image {
             require(data.size % Int.SIZE_BYTES == 0) { "Image data should be multiple of 4 bytes." }

@@ -6,7 +6,9 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.io.*
+import kotlinx.io.Buffer
+import kotlinx.io.buffered
+import kotlinx.io.readByteArray
 
 class SinkTest : FunSpec({
 
@@ -14,20 +16,21 @@ class SinkTest : FunSpec({
         val blackImage = Image(width = 8, height = 12, pixels = IntArray(96)) // Values chosen to exactly fit capacity
         val whiteImage = Image(width = 8, height = 12, pixels = IntArray(96) { 0xFFFFFFFF.toInt() }) // transparent though
         val lsbKey = Key.generate("hunter2")
+
+        val blackStego = StegoAlgorithm.createFor(blackImage.copy().pixels, lsbKey)
+        val whiteStego = StegoAlgorithm.createFor(whiteImage.copy().pixels, lsbKey)
+
+        val (blackSink, blackSource) = StegoSink(blackStego) to StegoSource(blackStego)
+        val (whiteSink, whiteSource) = StegoSink(whiteStego) to StegoSource(whiteStego)
+
         val capacity = withClue("Image capacity not calculated correctly") {
-            blackImage.capacity(lsbKey)
-                .shouldBe(whiteImage.capacity(lsbKey))
+            blackStego.capacity
+                .shouldBe(whiteStego.capacity)
                 .shouldBe(36)
         }
 
         val allZero = ByteArray(capacity) { 0x00 }
         val allOnes = ByteArray(capacity) { 0xFF.toByte() }
-
-        val blackImageCopy = blackImage.copy()
-        val whiteImageCopy = whiteImage.copy()
-
-        val (blackSink, blackSource) = blackImageCopy.let { StegoSink(it, lsbKey) to StegoSource(it, lsbKey) }
-        val (whiteSink, whiteSource) = whiteImageCopy.let { StegoSink(it, lsbKey) to StegoSource(it, lsbKey) }
 
         withClue("Could not write to sink(s)") {
             blackSink.buffered().use { it.write(allOnes) }
@@ -44,15 +47,15 @@ class SinkTest : FunSpec({
         }
 
         withClue("Modified pixels outside of bitmask") {
-            blackImageCopy.pixels.forEachIndexed { index, value ->
+            blackStego.pixels.forEachIndexed { index, value ->
                 val original = blackImage.pixels[index]
                 original shouldBe 0
-                value xor original shouldBe lsbKey.bitmask
+                value xor original shouldBe blackStego.bitmask
             }
-            whiteImageCopy.pixels.forEachIndexed { index, value ->
+            whiteStego.pixels.forEachIndexed { index, value ->
                 val original = whiteImage.pixels[index]
                 original shouldBe 0xFFFFFFFF.toInt()
-                value xor original shouldBe lsbKey.bitmask
+                value xor original shouldBe whiteStego.bitmask
             }
         }
     }
@@ -64,10 +67,11 @@ class SinkTest : FunSpec({
         val pixel = 0b1100010000001000
         val key = Key.generate(bitmask)
         val buffer = Buffer().apply { writeByte(payload) }
+        val stego = StegoAlgorithm.createFor(image.pixels, key)
 
-        StegoSink(image, key).write(buffer, 1)
+        StegoSink(stego).write(buffer, 1)
         buffer.size shouldBe 0L
-        StegoSource(image, key).readAtMostTo(buffer, 1) shouldBe 1L
+        StegoSource(stego).readAtMostTo(buffer, 1) shouldBe 1L
         buffer.size shouldBe 1L
         buffer.readByte() shouldBe payload
         image.pixels.single() shouldBe pixel
