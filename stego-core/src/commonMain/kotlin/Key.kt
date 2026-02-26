@@ -5,8 +5,6 @@ import dev.whyoleg.cryptography.algorithms.AES
 import dev.whyoleg.cryptography.algorithms.SHA256
 import kotlinx.io.Buffer
 import kotlinx.io.readTo
-import kotlinx.io.readUInt
-import kotlinx.io.writeUInt
 
 /**
  * A key that can be used to embed or extract a hidden, encrypted payload inside pixel data.
@@ -22,7 +20,7 @@ public class Key(bytes: ByteArray) {
     internal val aesKey: AES.GCM.Key
 
     /** The bits to use from the RGBA pixel data. */
-    internal val bitmask: UInt
+    internal val bitmask: Int
 
     /** The windowed XOR over the hash of the key, used as a preflight check. */
     internal val challenge: Int
@@ -31,9 +29,9 @@ public class Key(bytes: ByteArray) {
         require(bytes.size == SIZE_BYTES) { "Invalid key format. Got ${bytes.size} instead of $SIZE_BYTES bytes." }
         Buffer().use { buffer ->
             buffer.write(bytes)
-            bitmask = buffer.readUInt()
+            bitmask = buffer.readInt()
         }
-        require(bitmask != 0u) { "The bitmask requires at least one bit to be set." }
+        require(bitmask != 0) { "The bitmask requires at least one bit to be set." }
         Buffer().use { buffer ->
             buffer.write(hasher.hashBlocking(bytes))
             challenge = IntArray(HASH_SIZE_BYTES / Int.SIZE_BYTES) { buffer.readInt() }.reduce(Int::xor)
@@ -62,7 +60,7 @@ public class Key(bytes: ByteArray) {
 
         private const val HASH_SIZE_BYTES: Int = 32
 
-        private const val DEFAULT_BITMASK: UInt = 0x01010100u
+        private const val DEFAULT_BITMASK: Int = 0x01010100
 
         /**
          * Generates a new, random key.
@@ -71,11 +69,11 @@ public class Key(bytes: ByteArray) {
          *                By default, the least significant bit of the R, G, and B channels will be used.
          *                The value cannot be zero, as then no bits would be used.
          */
-        public fun generate(bitmask: UInt = DEFAULT_BITMASK): Key {
+        public fun generate(bitmask: Int = DEFAULT_BITMASK): Key {
             val bytes = CryptographySystem.getDefaultRandom().nextBytes(SIZE_BYTES)
             Buffer().use {
-                it.writeUInt(bitmask)
-                it.readTo(bytes, 0, UInt.SIZE_BYTES)
+                it.writeInt(bitmask)
+                it.readTo(bytes, 0, Int.SIZE_BYTES)
             }
             return Key(bytes)
         }
@@ -88,8 +86,8 @@ public class Key(bytes: ByteArray) {
         public fun generate(passphrase: String): Key {
             val bytes = hasher.hashBlocking(passphrase.encodeToByteArray())
             Buffer().use {
-                it.writeUInt(DEFAULT_BITMASK)
-                it.readTo(bytes, 0, UInt.SIZE_BYTES)
+                it.writeInt(DEFAULT_BITMASK)
+                it.readTo(bytes, 0, Int.SIZE_BYTES)
             }
             return Key(bytes)
         }

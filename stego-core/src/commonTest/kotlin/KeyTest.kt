@@ -12,20 +12,20 @@ class KeyTest : FunSpec({
     val exampleKey = Key.generate(exampleKeyPassphrase)
 
     test("Algorithm values are extracted correctly") {
-        exampleKey.bitmask shouldBe 0x01010100u
+        exampleKey.bitmask shouldBe 0x01010100
         exampleKey.challenge shouldBe "8e5c125c".hexToInt()
     }
 
     context("Generation") {
         test("Can generate a random key") {
             val key = shouldNotThrowAny { Key.generate() }
-            key.bitmask shouldBe 0x01010100u
+            key.bitmask shouldBe 0x01010100
         }
 
         test("Can use custom bitmasks") {
-            shouldThrow<IllegalArgumentException> { Key.generate(bitmask = 0u) }
-            val key = Key.generate(bitmask = 0x02000200u)
-            key.bitmask shouldBe 0x002000200u
+            shouldThrow<IllegalArgumentException> { Key.generate(bitmask = 0) }
+            val key = Key.generate(bitmask = 0x02000200)
+            key.bitmask shouldBe 0x002000200
         }
 
         test("Can derive from passphrase") {

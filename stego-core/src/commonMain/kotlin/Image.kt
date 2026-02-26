@@ -4,7 +4,6 @@ import dev.whyoleg.cryptography.CryptographySystem
 import io.github.jadarma.stego.core.internal.*
 import kotlinx.io.*
 import kotlin.math.absoluteValue
-import kotlin.random.nextUInt
 
 /**
  * An image loaded in memory.
@@ -15,7 +14,7 @@ import kotlin.random.nextUInt
 public class Image(
     public val width: Int,
     public val height: Int,
-    public val pixels: UIntArray,
+    public val pixels: IntArray,
 ) {
 
     init {
@@ -89,13 +88,13 @@ public class Image(
     public fun copy(): Image = Image(width, height, pixels.copyOf())
 
     /** Encodes the image into a RAW pixel sequence in RGBA format. */
-    public fun encodeToRgba(): ByteArray = ByteArray(pixels.size * UInt.SIZE_BYTES).apply {
+    public fun encodeToRgba(): ByteArray = ByteArray(pixels.size * Int.SIZE_BYTES).apply {
         var index = 0
         val buffer = Buffer()
         for (pixel in pixels) {
-            buffer.writeUInt(pixel)
-            buffer.readTo(this, index, index + UInt.SIZE_BYTES)
-            index += UInt.SIZE_BYTES
+            buffer.writeInt(pixel)
+            buffer.readTo(this, index, index + Int.SIZE_BYTES)
+            index += Int.SIZE_BYTES
         }
     }
 
@@ -114,11 +113,11 @@ public class Image(
     }.getOrNull()
 
     /** Modifies the current image, adding random data over bits specified by the [bitmask]. */
-    private fun noise(bitmask: UInt) {
+    private fun noise(bitmask: Int) {
         val invMask = bitmask.inv()
         val random = CryptographySystem.getDefaultRandom()
         for (index in pixels.indices) {
-            pixels[index] = (pixels[index] and invMask) or (random.nextUInt() and bitmask)
+            pixels[index] = (pixels[index] and invMask) or (random.nextInt() and bitmask)
         }
     }
 
@@ -136,9 +135,9 @@ public class Image(
          *                                  match the pixel count.
          */
         public fun decodeFromRgba(data: ByteArray, size: Pair<Int, Int>? = null): Image {
-            require(data.size % UInt.SIZE_BYTES == 0) { "Image data should be multiple of 4 bytes." }
+            require(data.size % Int.SIZE_BYTES == 0) { "Image data should be multiple of 4 bytes." }
 
-            val pixelCount = data.size / UInt.SIZE_BYTES
+            val pixelCount = data.size / Int.SIZE_BYTES
             val width = size?.first ?: pixelCount
             val height = size?.second ?: 1
             val channels = 4
@@ -151,9 +150,9 @@ public class Image(
             return Image(
                 width = width,
                 height = height,
-                pixels = UIntArray(pixelCount) { index ->
+                pixels = IntArray(pixelCount) { index ->
                     repeat(4) { channel -> buffer.writeByte(data[index * channels + channel]) }
-                    buffer.readUInt()
+                    buffer.readInt()
                 }
             )
         }

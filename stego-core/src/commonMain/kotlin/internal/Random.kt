@@ -5,7 +5,6 @@ import dev.whyoleg.cryptography.algorithms.SHA256
 import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
 import kotlinx.io.Buffer
-import kotlinx.io.readULong
 import kotlin.random.Random
 
 /**
@@ -17,13 +16,13 @@ import kotlin.random.Random
  * [source code](https://prng.di.unimi.it/xoshiro256plusplus.c).
  */
 private class Xoshiro256PlusPlus(
-    private var s0: ULong,
-    private var s1: ULong,
-    private var s2: ULong,
-    private var s3: ULong,
+    private var s0: Long,
+    private var s1: Long,
+    private var s2: Long,
+    private var s3: Long,
 ) : Random() {
 
-    private fun next(): ULong {
+    private fun next(): Long {
         val result = (s0 + s3).rotateLeft(23) + s0
         val t = s1 shl 17
         s2 = s2 xor s0
@@ -35,7 +34,7 @@ private class Xoshiro256PlusPlus(
         return result
     }
 
-    override fun nextBits(bitCount: Int): Int = next().shr(64 - bitCount).toInt()
+    override fun nextBits(bitCount: Int): Int = next().ushr(64 - bitCount).toInt()
 }
 
 /**
@@ -50,10 +49,10 @@ internal fun Key.toRandom(): Random {
     return Buffer().use { buffer ->
         buffer.write(digest)
         Xoshiro256PlusPlus(
-            s0 = buffer.readULong(),
-            s1 = buffer.readULong(),
-            s2 = buffer.readULong(),
-            s3 = buffer.readULong(),
+            s0 = buffer.readLong(),
+            s1 = buffer.readLong(),
+            s2 = buffer.readLong(),
+            s3 = buffer.readLong(),
         )
     }
 }

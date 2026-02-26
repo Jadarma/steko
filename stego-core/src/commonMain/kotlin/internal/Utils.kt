@@ -21,7 +21,7 @@ internal fun Key.maskedBits(): IntArray = IntArray(bitmask.countOneBits()).apply
     var index = size
     repeat(bitmask.countOneBits()) {
         val trailing = mask.countTrailingZeroBits() + 1
-        mask = mask.shr(trailing)
+        mask = mask.ushr(trailing)
         bitIndex += trailing
         this[--index] = bitIndex - 1
     }
@@ -46,16 +46,16 @@ internal fun StegoPayload.encodeToByteArray(): ByteArray = when (this) {
 }
 
 /** Returns the number equal to this binary representation with the bit at [index] as `1`. */
-internal fun UInt.setBit(index: Int): UInt = this or (1u shl index)
+internal fun Int.setBit(index: Int): Int = this or (1 shl index)
 
 /** Returns the number equal to this binary representation with the bit at [index] as `0`. */
-internal fun UInt.clearBit(index: Int): UInt = this and (1u shl index).inv()
+internal fun Int.clearBit(index: Int): Int = this and (1 shl index).inv()
 
 /** Returns whether the bit at [index] is set. */
-internal fun Byte.isBitSet(index: Int): Boolean = this.toUInt() and (1u shl index) > 0u
+internal fun Byte.isBitSet(index: Int): Boolean = this.toInt() and (1 shl index) > 0
 
-/** Returns either `1u` or `0u` depending on whether the bit at [index] is set. */
-internal fun UInt.bitAt(index: Int): UInt = (this shr index) and 1u
+/** Returns either `1` or `0` depending on whether the bit at [index] is set. */
+internal fun Int.bitAt(index: Int): Int = (this ushr index) and 1
 
 /** Customised CBOR format used for payloads, aimed to be as lightweight and robust as possible. */
 internal val cborFormat = Cbor {

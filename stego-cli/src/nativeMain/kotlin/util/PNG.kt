@@ -36,19 +36,19 @@ fun Image.Companion.decodeFromPng(data: ByteArray): Image = memScoped {
 /** Encodes the image into a PNG file. */
 @OptIn(ExperimentalForeignApi::class)
 fun Image.encodeToPng(): ByteArray {
-    val requiresAlphaChannel: Boolean = pixels.any { it and 0xFFu != 0xFFu }
+    val requiresAlphaChannel: Boolean = pixels.any { it and 0xFF != 0xFF }
     val channels = if (requiresAlphaChannel) 4 else 3
 
-    val bytes = UByteArray(width * height * channels) { index ->
+    val bytes = ByteArray(width * height * channels) { index ->
         val pixelValue = pixels[index / channels]
         val pixelChannel = index % channels
-        pixelValue.shr(UByte.SIZE_BITS * (3 - pixelChannel)).toUByte()
+        pixelValue.ushr(Byte.SIZE_BITS * (3 - pixelChannel)).toByte()
     }
 
     return memScoped {
         val size = alloc<IntVar>()
         val pointer = stbi_write_png_to_mem(
-            pixels = bytes.toCValues(),
+            pixels = bytes.asUByteArray().toCValues(),
             stride_bytes = width * channels,
             x = width,
             y = height,

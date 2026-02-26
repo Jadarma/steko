@@ -27,7 +27,7 @@ class EncodingOptions : OptionGroup(
         """.trimIndent(),
     ).nullableFlag().default(false)
 
-    val bitmask: UInt by option(
+    val bitmask: Int by option(
         "-b", "--bitmask",
         help = """
             An unsigned 32-bit mask _(given as hex or decimal)_ for an RGBA pixel value, set bits will overwrite the
@@ -40,12 +40,12 @@ class EncodingOptions : OptionGroup(
         """.trimIndent(),
         helpTags = mapOf("Examples" to "0x01020100 == 1690854"),
     )
-        .convert { if (it.startsWith("0x")) it.removePrefix("0x").hexToUInt() else it.toUInt() }
+        .convert { if (it.startsWith("0x")) it.removePrefix("0x").hexToInt() else it.toInt() }
         .default(
             DEFAULT_BITMASK,
             defaultForHelp = "${DEFAULT_BITMASK.toHexString()} - least significant bit in color channels"
         )
-        .validate { require(it != 0u) { "The bitmask must have at least one bit set." } }
+        .validate { require(it != 0) { "The bitmask must have at least one bit set." } }
 
     val noise: Boolean by option(
         "--noise",
@@ -69,6 +69,6 @@ class EncodingOptions : OptionGroup(
     }
 
     private companion object {
-        const val DEFAULT_BITMASK: UInt = 0x01010100u
+        const val DEFAULT_BITMASK: Int = 0x01010100
     }
 }

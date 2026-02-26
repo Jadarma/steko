@@ -44,7 +44,7 @@ class RandomTest : FunSpec({
     }
 
     test("The image pixel order is the same when using the same key.") {
-        val image = Image(100, 100, UIntArray(100 * 100))
+        val image = Image(100, 100, IntArray(100 * 100))
         val keyA = Key.generate()
         val keyB = Key(keyA.toHexString())
         val keyC = Key.generate()

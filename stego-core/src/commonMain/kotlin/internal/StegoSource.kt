@@ -35,7 +35,7 @@ internal class StegoSource(private val image: Image, key: Key) : RawSource {
 
     /** Read the payload byte at the current [index] and increment the index. */
     private fun readByte(): Byte {
-        var byte = 0u
+        var byte = 0
         for (bit in 0 until Byte.SIZE_BITS) {
             val bitIndex = index * Byte.SIZE_BITS + bit
             val pixelIndex = pixelOrder[(bitIndex / maskedBits.size).toInt()]

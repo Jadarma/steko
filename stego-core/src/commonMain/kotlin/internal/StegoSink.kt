@@ -35,7 +35,7 @@ internal class StegoSink(private val image: Image, key: Key) : RawSink {
             val pixelBit = maskedBits[(bitIndex % maskedBits.size).toInt()]
             val pixelValue = image.pixels[pixelIndex]
 
-            image.pixels[pixelIndex] = when (value.isBitSet(UByte.SIZE_BITS - 1 - bit)) {
+            image.pixels[pixelIndex] = when (value.isBitSet(Byte.SIZE_BITS - 1 - bit)) {
                 true -> pixelValue.setBit(pixelBit)
                 false -> pixelValue.clearBit(pixelBit)
             }

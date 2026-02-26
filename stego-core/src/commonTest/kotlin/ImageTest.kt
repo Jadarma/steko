@@ -12,23 +12,23 @@ import io.kotest.matchers.shouldBe
 class ImageTest : FunSpec({
 
     test("Constructor is validated") {
-        shouldThrow<IllegalArgumentException> { Image(0, 1, uintArrayOf(0u)) }
-        shouldThrow<IllegalArgumentException> { Image(1, 0, uintArrayOf(0u)) }
-        shouldThrow<IllegalArgumentException> { Image(-1, -1, uintArrayOf(0u)) }
-        shouldThrow<IllegalArgumentException> { Image(1, 1, uintArrayOf()) }
-        shouldThrow<IllegalArgumentException> { Image(2, 1, uintArrayOf(0u)) }
-        shouldNotThrowAny { Image(1, 2, uintArrayOf(0u, 1u)) }
+        shouldThrow<IllegalArgumentException> { Image(0, 1, intArrayOf(0)) }
+        shouldThrow<IllegalArgumentException> { Image(1, 0, intArrayOf(0)) }
+        shouldThrow<IllegalArgumentException> { Image(-1, -1, intArrayOf(0)) }
+        shouldThrow<IllegalArgumentException> { Image(1, 1, intArrayOf()) }
+        shouldThrow<IllegalArgumentException> { Image(2, 1, intArrayOf(0)) }
+        shouldNotThrowAny { Image(1, 2, intArrayOf(0, 1)) }
     }
 
     test("Copying the image copies the buffer") {
-        val imageA = Image(1, 2, uintArrayOf(0u, 1u))
+        val imageA = Image(1, 2, intArrayOf(0, 1))
         val imageB = imageA.copy()
         imageB.width shouldBe imageA.width
         imageB.height shouldBe imageA.height
         imageB.pixels shouldHaveSize imageA.pixels.size
-        imageB.pixels[0] shouldBe 0u
-        imageA.pixels[0] = 42u
-        imageB.pixels[0] shouldBe 0u
+        imageB.pixels[0] shouldBe 0
+        imageA.pixels[0] = 42
+        imageB.pixels[0] shouldBe 0
     }
 
     context("Serialization") {
@@ -58,7 +58,7 @@ class ImageTest : FunSpec({
             val image = shouldNotThrowAny { Image.decodeFromRgba(byteArrayOf(1, 2, 3, 4)) }
             image.width shouldBe 1
             image.height shouldBe 1
-            image.pixels.shouldHaveSingleElement(0x01020304u)
+            image.pixels.single().shouldBe(0x01020304)
         }
 
         test("Optional size parameter is validated") {
