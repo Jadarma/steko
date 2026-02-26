@@ -1,6 +1,7 @@
 plugins {
     id("conventions.kotlin")
     id("conventions.testing")
+    id("conventions.detekt")
 }
 
 group = "io.github.jadarma.stego"

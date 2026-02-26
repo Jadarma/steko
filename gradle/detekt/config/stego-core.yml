@@ -1,0 +1,4 @@
+naming:
+  InvalidPackageDeclaration:
+    rootPackage: 'io.github.jadarma.stego.core'
+    requireRootInDeclaration: true

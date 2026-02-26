@@ -1,0 +1,28 @@
+# Overrides to relax some rules for the test source-sets.
+comments:
+  AbsentOrWrongFileLicense:
+    active: false
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+  UndocumentedPublicProperty:
+    active: false
+
+complexity:
+  StringLiteralDuplication:
+    active: false
+
+naming:
+  BooleanPropertyNaming:
+    active: false
+
+potential-bugs:
+  UnnamedParameterUse:
+    active: false
+
+style:
+  MagicNumber:
+    active: false
+  UnderscoresInNumericLiterals:
+    active: false

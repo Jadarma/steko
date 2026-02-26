@@ -1,12 +1,14 @@
 [versions]
 kotlin = "2.3.10"               # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
-kotest = "6.1.3"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
-ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
+kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg.cryptography/cryptography-core
 kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
-kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
+
+kotest = "6.1.3"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
+ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
 kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
+detekt = "2.0.0-alpha.2"        # https://mvnrepository.com/artifact/dev.detekt/detekt-gradle-plugin
 toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
@@ -26,6 +28,7 @@ gradlePluginDep-kotlin-serialization = { module = "org.jetbrains.kotlin.plugin.s
 gradlePluginDep-kotest = { module = "io.kotest:io.kotest.gradle.plugin", version.ref = "kotest" }
 gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.goncalossilva.resources.gradle.plugin", version.ref = "kotlin-testResources" }
 gradlePluginDep-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+gradlePluginDep-detekt = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
 gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
 
 [bundles]
@@ -37,6 +40,7 @@ gradlePlugins = [
     "gradlePluginDep-kotest",
     "gradlePluginDep-testResources",
     "gradlePluginDep-ksp",
+    "gradlePluginDep-detekt",
 
     "gradlePluginDep-javaToolchains",
 ]
@@ -50,4 +54,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization" }
 testResources = { id = "com.goncalossilva.resources" }
 kotest = { id = "io.kotest" }
 ksp = { id = "com.google.devtools.ksp" }
+detekt = { id = "dev.detekt" }
 javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }

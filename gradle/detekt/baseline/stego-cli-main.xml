@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>BracesOnIfStatements:CliExt.kt:if</ID>
+    <ID>BracesOnIfStatements:HideCommand.kt:HideCommand$if</ID>
+    <ID>ClassOrdering:HideCommand.kt:HideCommand$override fun help: String</ID>
+    <ID>ClassOrdering:HideCommand.kt:HideCommand$override fun helpEpilog: String</ID>
+    <ID>ClassOrdering:ImageFileOptions.kt:ImageFileOptions$override fun finalize</ID>
+    <ID>ClassOrdering:ShowCommand.kt:ShowCommand$override fun help: String</ID>
+    <ID>ClassOrdering:ShowCommand.kt:ShowCommand$override fun helpEpilog: String</ID>
+    <ID>ExceptionRaisedInUnexpectedLocation:EncodingOptions.kt:EncodingOptions$override fun finalize</ID>
+    <ID>ExceptionRaisedInUnexpectedLocation:ImageFileOptions.kt:ImageFileOptions$override fun finalize</ID>
+    <ID>MagicNumber:HideCommand.kt:HideCommand$3</ID>
+    <ID>MagicNumber:HideCommand.kt:HideCommand$4</ID>
+    <ID>MagicNumber:ImageFileOptions.kt:ImageFileOptions$9</ID>
+    <ID>MagicNumber:PNG.kt:0xFF</ID>
+    <ID>MagicNumber:PNG.kt:3</ID>
+    <ID>MagicNumber:PNG.kt:4</ID>
+    <ID>MagicNumber:ShowCommand.kt:ShowCommand$1024</ID>
+    <ID>MaxLineLength:ImageFileOptions.kt:ImageFileOptions$throw UsageError("setting ${info("--in")} and ${info("--out")} to same path is considered an error. Did you mean to use ${info("--edit")}?")</ID>
+    <ID>MaxLineLength:ImageFileOptions.kt:ImageFileOptions$throw UsageError("the ${info("--edit")} flag cannot be used together with ${info("--in")} and ${info("--out")}")</ID>
+    <ID>MultilineRawStringIndentation:HideCommand.kt:HideCommand$""" ${header("Examples")}: - Hide a text message:\ ${example("stego hide -i in.png -o out.png -m 'Hello'")} - Hide a file:\ ${example("stego hide -i in.png -o out.png secret.md")} - Edit the image in-place:\ ${example("stego hide -e image.png secret.md")} - Use passphrase:\ ${example("stego hide -p -e image.png -m 'Hello'")} """</ID>
+    <ID>MultilineRawStringIndentation:ShowCommand.kt:ShowCommand$""" ${header("Examples")}: - Extract a payload:\ ${example("stego show image.png &lt; secret.key")} - Save attachments to disk:\ ${example("stego show -o /tmp/stego image.png &lt; secret.key")} - Use a passphrase:\ ${example("stego show -p image.png")} """</ID>
+    <ID>ThrowsCount:ImageFileOptions.kt:ImageFileOptions$override fun finalize</ID>
+    <ID>UndocumentedPublicClass:ShowCommand.kt:ShowCommand : CliktCommand</ID>
+    <ID>UndocumentedPublicClass:StegoCommand.kt:StegoCommand : CliktCommand</ID>
+    <ID>UndocumentedPublicFunction:Main.kt:fun main: Unit</ID>
+    <ID>UndocumentedPublicProperty:EncodingOptions.kt:EncodingOptions$val bitmask: Int by option( "-b", "--bitmask", help = """ An unsigned 32-bit mask _(given as hex or decimal)_ for an RGBA pixel value, set bits will overwrite the original image value with data from the payload. It is recommended to use the least significant bits to make it more stealthy and not use the alpha channel, especially if the original image doesn't make use of transparency. One can also use many or all bits, leading to chaos resembling glitch art. For obvious reasons, value _cannot be zero_. _NOTE:_ When using a custom bitmask, the **--passphrase** option cannot be used! """.trimIndent(), helpTags = mapOf("Examples" to "0x01020100 == 1690854"), ) .convert { if (it.startsWith("0x")) it.removePrefix("0x").hexToInt() else it.toInt() } .default( DEFAULT_BITMASK, defaultForHelp = "${DEFAULT_BITMASK.toHexString()} - least significant bit in color channels" ) .validate { require(it != 0) { "The bitmask must have at least one bit set." } }</ID>
+    <ID>UndocumentedPublicProperty:EncodingOptions.kt:EncodingOptions$val noise: Boolean by option( "--noise", help = """ Choose whether to write random data in the pixels not used to encode the payload. The noise attempts to explain away imperfections caused by the payload bitmask as noise or compression artifacts in the carrier image, as well as make it more difficult to locate pixels of the payload when the original image is known. """.trimIndent() ).flag("--no-noise", default = true, defaultForHelp = "Enabled")</ID>
+    <ID>UndocumentedPublicProperty:EncodingOptions.kt:EncodingOptions$val usePassphrase: Boolean by option( "-p", "--passphrase", help = """ Prompts for a passphrase instead of generating a random key. More convenient, but less secure. Prefer not overusing the same passphrase for important files. """.trimIndent(), ).nullableFlag().default(false)</ID>
+    <ID>UndocumentedPublicProperty:HideCommand.kt:HideCommand$val attachments: List&lt;Path&gt; by argument( name = "attachment", help = "Path to a file to embed as an attachment.", completionCandidates = CompletionCandidates.Path, ) .convert { Path(it) } .multiple() .validateCatching { paths -&gt; paths.forEach { fileSystem.checkFile(it) } }</ID>
+    <ID>UndocumentedPublicProperty:HideCommand.kt:HideCommand$val encodingOptions by EncodingOptions()</ID>
+    <ID>UndocumentedPublicProperty:HideCommand.kt:HideCommand$val fileSystem by requireObject&lt;FileSystem&gt;("fs")</ID>
+    <ID>UndocumentedPublicProperty:HideCommand.kt:HideCommand$val imageFiles by ImageFileOptions()</ID>
+    <ID>UndocumentedPublicProperty:HideCommand.kt:HideCommand$val message: String? by option( "-m", "--message", metavar = "text", help = """ Hide the given plain-text string. Ideal for short memos or giving instructions for file attachments. """.trimIndent(), ).validate { text -&gt; require(text.isNotBlank()) { "Text cannot be empty." } }</ID>
+    <ID>UndocumentedPublicProperty:ShowCommand.kt:ShowCommand$val fileSystem by requireObject&lt;FileSystem&gt;("fs")</ID>
+    <ID>UndocumentedPublicProperty:ShowCommand.kt:ShowCommand$val imagePath: Path by argument( name = "image", help = "Path to the carrier image to attempt to extract a payload from.", helpTags = mapOf("Formats" to ".png, .rgba"), completionCandidates = CompletionCandidates.Path, ) .convert { Path(it) } .validateCatching { fileSystem.checkFile(it) }</ID>
+    <ID>UndocumentedPublicProperty:ShowCommand.kt:ShowCommand$val outputDirectory: Path? by option( "-o", "--out", metavar = "path", help = """ The directory to write the attachments to. The file(s) will be named according to it's own metadata. """.trimIndent(), ) .convert { Path(it) } .validateCatching { path -&gt; path.takeUnless { it.toString() == "-" }?.let(fileSystem::checkDirectory) }</ID>
+    <ID>UndocumentedPublicProperty:ShowCommand.kt:ShowCommand$val usePassphrase: Boolean by option( "-p", "--passphrase", help = "Treats the input as a passphrase to derive from, instead of reading the actual key in hex format", ).nullableFlag().default(false)</ID>
+    <ID>WildcardImport:HideCommand.kt:import io.github.jadarma.stego.cli.util.*</ID>
+    <ID>WildcardImport:PNG.kt:import kotlinx.cinterop.*</ID>
+    <ID>WildcardImport:ShowCommand.kt:import com.github.ajalt.clikt.parameters.options.*</ID>
+    <ID>WildcardImport:ShowCommand.kt:import io.github.jadarma.stego.cli.util.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

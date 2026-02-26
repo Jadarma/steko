@@ -13,8 +13,8 @@ import kotlinx.io.readByteArray
 class SinkTest : FunSpec({
 
     test("Only writes to bit-masked bits") {
-        val blackImage = Image(width = 8, height = 12, pixels = IntArray(96)) // Values chosen to exactly fit capacity
-        val whiteImage = Image(width = 8, height = 12, pixels = IntArray(96) { 0xFFFFFFFF.toInt() }) // transparent though
+        val blackImage = Image(width = 8, height = 12, pixels = IntArray(96))
+        val whiteImage = Image(width = 8, height = 12, pixels = IntArray(96) { 0xFFFFFFFF.toInt() })
         val lsbKey = Key.generate("hunter2")
 
         val blackStego = StegoAlgorithm.createFor(blackImage.copy().pixels, lsbKey)
