@@ -5,10 +5,11 @@ kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg
 kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
 
-kotest = "6.1.3"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
+kotest = "6.1.4"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
 ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
 kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
 detekt = "2.0.0-alpha.2"        # https://mvnrepository.com/artifact/dev.detekt/detekt-gradle-plugin
+kotlin-binaryCompat = "0.18.1"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx.binary-compatibility-validator/org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin
 toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
@@ -29,6 +30,7 @@ gradlePluginDep-kotest = { module = "io.kotest:io.kotest.gradle.plugin", version
 gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.goncalossilva.resources.gradle.plugin", version.ref = "kotlin-testResources" }
 gradlePluginDep-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 gradlePluginDep-detekt = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
+gradlePluginDep-kotlin-binaryCompat = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "kotlin-binaryCompat" }
 gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
 
 [bundles]
@@ -41,6 +43,7 @@ gradlePlugins = [
     "gradlePluginDep-testResources",
     "gradlePluginDep-ksp",
     "gradlePluginDep-detekt",
+    "gradlePluginDep-kotlin-binaryCompat",
 
     "gradlePluginDep-javaToolchains",
 ]
@@ -55,4 +58,5 @@ testResources = { id = "com.goncalossilva.resources" }
 kotest = { id = "io.kotest" }
 ksp = { id = "com.google.devtools.ksp" }
 detekt = { id = "dev.detekt" }
+kotlin-binaryCompat = { id = "org.jetbrains.kotlinx.binary-compatibility-validator" }
 javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }

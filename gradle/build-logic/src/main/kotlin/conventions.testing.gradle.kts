@@ -1,3 +1,5 @@
+import org.gradle.internal.classpath.Instrumented.systemProperty
+
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("io.kotest")
@@ -15,10 +17,11 @@ kotlin {
     }
 }
 
-tasks.withType<Test>().configureEach {
+tasks.withType<AbstractTestTask>().configureEach {
     val module = project.name.removePrefix("stego-")
     systemProperty("kotest.framework.config.fqn", "$group.$module.test.TestConfig")
 
+    failOnNoDiscoveredTests = false
     logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
     outputs.upToDateWhen { false }
 }

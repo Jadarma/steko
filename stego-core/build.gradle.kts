@@ -1,5 +1,6 @@
 plugins {
     id("conventions.kotlin")
+    id("conventions.library")
     id("conventions.testing")
     id("conventions.detekt")
 }
@@ -8,16 +9,11 @@ group = "io.github.jadarma.stego"
 version = "0.1.0-SNAPSHOT"
 
 kotlin {
-    listOf(
-        linuxX64(),
-        linuxArm64(),
-        macosArm64(),
-    )
+    linuxX64()
+    linuxArm64()
+    macosArm64()
 
     compilerOptions {
-        explicitApi()
-        allWarningsAsErrors = true
-
         optIn.addAll(
             "kotlinx.serialization.ExperimentalSerializationApi",
         )
