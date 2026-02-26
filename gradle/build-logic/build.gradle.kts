@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation(libs.bundles.gradlePlugins)
-    // Also see `src/main/kotlin/VersionCatalogWorkaround.kt
+    // Also see `src/main/kotlin/Quirks.kt
     // https://github.com/gradle/gradle/issues/15383
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }

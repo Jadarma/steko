@@ -1,6 +1,5 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.serialization)
+    id("conventions.kotlin")
     id("conventions.testing")
 }
 
@@ -25,22 +24,8 @@ kotlin {
         }
         target.binaries.executable {
             baseName = "stego"
-            entryPoint = "io.github.jadarma.stego.cli.main"
+            entryPoint = "$group.cli.main"
         }
-
-        // On Linux, do not link any shared libraries that aren't needed.
-        // This is especially useful for NixOS.
-        if(target.name.startsWith("linux")) {
-            target.binaries.all {
-                linkerOpts("-Wl,--as-needed")
-            }
-        }
-    }
-
-    compilerOptions {
-        freeCompilerArgs.addAll(
-            "-Xcontext-parameters"
-        )
     }
 
     sourceSets {
@@ -54,4 +39,6 @@ kotlin {
             implementation(libs.clikt.markdown)
         }
     }
+
+    fixLinuxCompile()
 }
