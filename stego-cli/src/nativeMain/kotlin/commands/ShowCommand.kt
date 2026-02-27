@@ -1,24 +1,18 @@
 package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.UsageError
-import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.nullableFlag
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.markdown.Markdown
 import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.terminal.prompt
 import io.github.jadarma.stego.cli.util.*
-import io.github.jadarma.stego.core.Image
-import io.github.jadarma.stego.core.Key
-import io.github.jadarma.stego.core.Payload
-import io.github.jadarma.stego.core.RawPayload
-import io.github.jadarma.stego.core.generateBlocking
-import io.github.jadarma.stego.core.showBlocking
+import io.github.jadarma.stego.core.*
 import kotlinx.io.files.Path
 
 class ShowCommand : CliktCommand() {
@@ -26,40 +20,6 @@ class ShowCommand : CliktCommand() {
     override val printHelpOnEmptyArgs: Boolean = true
 
     val fileSystem by requireObject<FileSystem>("fs")
-
-    override fun help(context: Context): String {
-        val info = context.terminal.theme.info
-        return """
-            Recover previously hidden data from an image.
-
-            Reads the key from _STDIN_ and attempts to extract the payload.
-            
-            If the payload has a _message_, it will always be printed to _STDOUT_.
-            When in interactive mode, attachment names and sizes will also be displayed.
-            To view the contents of attachments, save them to a specified directory with the ${info("--out")}
-            option.
-            
-            _NOTE:_ It is also possible the payload doesn't contain the default Stego metadata.
-            In that case, the entire raw payload will be printed to _STDOUT_.
-        """.trimIndent()
-    }
-
-    override fun helpEpilog(context: Context): String {
-        val header = context.terminal.theme.warning
-        val example = context.terminal.theme.muted
-        return """
-            ${header("Examples")}:
-         
-            - Extract a payload:\
-              ${example("stego show image.png < secret.key")}
-            
-            - Save attachments to disk:\
-              ${example("stego show -o /tmp/stego image.png < secret.key")}
-
-            - Use a passphrase:\
-              ${example("stego show -p image.png")}              
-        """.trimIndent()
-    }
 
     val usePassphrase: Boolean by option(
         "-p", "--passphrase",
@@ -85,6 +45,40 @@ class ShowCommand : CliktCommand() {
     )
         .convert { Path(it) }
         .validateCatching { fileSystem.checkFile(it) }
+
+    override fun help(context: Context): String {
+        val info = context.terminal.theme.info
+        return """
+            Recover previously hidden data from an image.
+
+            Reads the key from _STDIN_ and attempts to extract the payload.
+            
+            If the payload has a _message_, it will always be printed to _STDOUT_.
+            When in interactive mode, attachment names and sizes will also be displayed.
+            To view the contents of attachments, save them to a specified directory with the ${info("--out")}
+            option.
+            
+            _NOTE:_ It is also possible the payload doesn't contain the default Stego metadata.
+            In that case, the entire raw payload will be printed to _STDOUT_.
+        """.trimIndent()
+    }
+
+    override fun helpEpilog(context: Context): String {
+        val header = context.terminal.theme.warning
+        val example = context.terminal.theme.muted
+        return """
+            ${header("Examples")}:
+            
+            - Extract a payload:\
+              ${example("stego show image.png < secret.key")}
+
+            - Save attachments to disk:\
+              ${example("stego show -o /tmp/stego image.png < secret.key")}
+
+            - Use a passphrase:\
+              ${example("stego show -p image.png")}              
+        """.trimIndent()
+    }
 
     override fun run() {
         val key = getKey()

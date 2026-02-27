@@ -107,7 +107,7 @@ public class Image(
             val pixelCount = data.size / Int.SIZE_BYTES
             val width = size?.first ?: pixelCount
             val height = size?.second ?: 1
-            val channels = 4
+            val channels = Int.SIZE_BYTES
 
             require(width > 0 && height > 0) { "Image sizes must be positive." }
             require(width * height == pixelCount) { "Size ${width}x$height is wrong: $pixelCount total pixels." }
@@ -118,7 +118,7 @@ public class Image(
                 width = width,
                 height = height,
                 pixels = IntArray(pixelCount) { index ->
-                    repeat(4) { channel -> buffer.writeByte(data[index * channels + channel]) }
+                    repeat(channels) { channel -> buffer.writeByte(data[index * channels + channel]) }
                     buffer.readInt()
                 }
             )

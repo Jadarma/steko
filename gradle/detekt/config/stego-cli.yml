@@ -2,3 +2,10 @@ naming:
   InvalidPackageDeclaration:
     rootPackage: 'io.github.jadarma.stego.cli'
     requireRootInDeclaration: true
+
+# Relax some style rules.
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: false

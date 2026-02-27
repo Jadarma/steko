@@ -48,6 +48,13 @@ class ImageFileOptions : OptionGroup(
         """.trimIndent(),
     ).convert { Path(it) }
 
+    /** The path to read the original image from. */
+    val input: Path get() = editFile ?: inputFile ?: throw ProgramResult(9)
+
+    /** The path to write the modified image to. */
+    val output: Path get() = editFile ?: outputFile ?: throw ProgramResult(9)
+
+    @Suppress("ExceptionRaisedInUnexpectedLocation", "ThrowsCount")
     override fun finalize(
         context: Context,
         invocationsByOption: Map<Option, List<OptionInvocation>>,
@@ -56,7 +63,10 @@ class ImageFileOptions : OptionGroup(
         val info = context.terminal.theme.info
         if (editFile != null) {
             if (inputFile != null || outputFile != null) {
-                throw UsageError("the ${info("--edit")} flag cannot be used together with ${info("--in")} and ${info("--out")}")
+                throw UsageError(
+                    "the ${info("--edit")} flag cannot be used together with " +
+                            "${info("--in")} and ${info("--out")}",
+                )
             }
         } else {
             if (inputFile == null) {
@@ -66,7 +76,10 @@ class ImageFileOptions : OptionGroup(
                 throw UsageError("must specify an output image with ${info("--out")}")
             }
             if (inputFile == outputFile) {
-                throw UsageError("setting ${info("--in")} and ${info("--out")} to same path is considered an error. Did you mean to use ${info("--edit")}?")
+                throw UsageError(
+                    "setting ${info("--in")} and ${info("--out")} to same path is considered an error. " +
+                            "Did you mean to use ${info("--edit")}?",
+                )
             }
         }
         if (input.extension !in setOf("png", "rgba")) {
@@ -83,10 +96,4 @@ class ImageFileOptions : OptionGroup(
             throw UsageError(cause.message ?: "Invalid file: $input")
         }
     }
-
-    /** The path to read the original image from. */
-    val input: Path get() = editFile ?: inputFile ?: throw ProgramResult(9)
-
-    /** The path to write the modified image to. */
-    val output: Path get() = editFile ?: outputFile ?: throw ProgramResult(9)
 }

@@ -57,6 +57,7 @@ class EncodingOptions : OptionGroup(
         """.trimIndent()
     ).flag("--no-noise", default = true, defaultForHelp = "Enabled")
 
+    @Suppress("ExceptionRaisedInUnexpectedLocation")
     override fun finalize(
         context: Context,
         invocationsByOption: Map<Option, List<OptionInvocation>>,

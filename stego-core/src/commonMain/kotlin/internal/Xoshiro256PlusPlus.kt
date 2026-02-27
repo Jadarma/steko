@@ -17,6 +17,7 @@ internal class Xoshiro256PlusPlus(
     private var s3: Long,
 ) : Random() {
 
+    @Suppress("MagicNumber")
     private fun next(): Long {
         val result = (s0 + s3).rotateLeft(23) + s0
         val t = s1 shl 17
@@ -29,5 +30,5 @@ internal class Xoshiro256PlusPlus(
         return result
     }
 
-    override fun nextBits(bitCount: Int): Int = next().ushr(64 - bitCount).toInt()
+    override fun nextBits(bitCount: Int): Int = next().ushr(Long.SIZE_BITS - bitCount).toInt()
 }

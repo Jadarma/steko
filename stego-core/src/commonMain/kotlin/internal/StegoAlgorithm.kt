@@ -77,7 +77,7 @@ internal class StegoAlgorithm(
 
             val challenge = Buffer().use { buffer ->
                 buffer.write(digest)
-                IntArray(32 / Int.SIZE_BYTES) { buffer.readInt() }.reduce(Int::xor)
+                IntArray(buffer.size.toInt() / Int.SIZE_BYTES) { buffer.readInt() }.reduce(Int::xor)
             }
 
             val pixelOrder = Buffer().use { buffer ->
@@ -130,7 +130,8 @@ internal class StegoAlgorithm(
         /**
          * Using the [random] instance, shuffle the pixel order of an image with [pixelCount] pixels.
          * Returns an array the same size as the image, containing the indexes of pixels to read in pseudo-random order.
-         * Based on the [Fisher–Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm).
+         * Based on the
+         * [Fisher–Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm).
          */
         fun shufflePixels(pixelCount: Int, random: Random): IntArray {
             val indices = IntArray(pixelCount) { it }

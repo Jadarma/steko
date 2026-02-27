@@ -2,18 +2,5 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>BracesOnIfStatements:Image.kt:Image$if</ID>
-    <ID>ClassOrdering:Key.kt:Key$init { require(bytes.size == SIZE_BYTES) { "Invalid key: got ${bytes.size} bytes, expected exactly $SIZE_BYTES." } require(bytes.toByteArray(0, Int.SIZE_BYTES).any { it != 0.toByte() }) { "Invalid key: leading 32 bits are all zero, bitmask impossible to use." } }</ID>
-    <ID>ClassOrdering:Payload.kt:Payload$init { require(message != null || attachments.isNotEmpty()) { "Payload cannot be empty." } attachments.forEach { (name, content) -&gt; require(content.isNotEmpty()) { "Attachment contents must not be empty." } require(name.isNotEmpty()) { "Attachments must have a name." } require(name.length &lt; 256) { "Attachments names must not exceed 255 characters." } require(!name.contains("/") &amp;&amp; !name.contains(":")) { "Attachments contain illegal characters." } require(name.trim() == name) { "Attachment names must not have surrounding whitespace." } } }</ID>
-    <ID>MagicNumber:Image.kt:Image.Companion$4</ID>
-    <ID>MagicNumber:Payload.kt:Payload$0x53544547uL</ID>
-    <ID>MagicNumber:Payload.kt:Payload$256</ID>
-    <ID>MagicNumber:StegoParameters.kt:StegoAlgorithm.Companion$32</ID>
-    <ID>MagicNumber:Xoshiro256PlusPlus.kt:Xoshiro256PlusPlus$17</ID>
-    <ID>MagicNumber:Xoshiro256PlusPlus.kt:Xoshiro256PlusPlus$23</ID>
-    <ID>MagicNumber:Xoshiro256PlusPlus.kt:Xoshiro256PlusPlus$45</ID>
-    <ID>MagicNumber:Xoshiro256PlusPlus.kt:Xoshiro256PlusPlus$64</ID>
-    <ID>MatchingDeclarationName:StegoParameters.kt:StegoAlgorithm</ID>
-    <ID>MaxLineLength:StegoParameters.kt:StegoAlgorithm.Companion$*</ID>
   </CurrentIssues>
 </SmellBaseline>

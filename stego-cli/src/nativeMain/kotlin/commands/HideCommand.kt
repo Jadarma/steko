@@ -1,11 +1,7 @@
 package io.github.jadarma.stego.cli.commands
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.UsageError
-import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -16,47 +12,14 @@ import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import io.github.jadarma.stego.cli.options.EncodingOptions
 import io.github.jadarma.stego.cli.options.ImageFileOptions
 import io.github.jadarma.stego.cli.util.*
-import io.github.jadarma.stego.core.Image
-import io.github.jadarma.stego.core.Key
-import io.github.jadarma.stego.core.Payload
+import io.github.jadarma.stego.core.*
 import kotlinx.io.files.Path
-import io.github.jadarma.stego.cli.util.FileSystem
-import io.github.jadarma.stego.core.generateBlocking
-import io.github.jadarma.stego.core.hideBlocking
 
 /** Subcommand for hiding a payload inside an image file. */
 class HideCommand : CliktCommand("hide") {
 
     override val printHelpOnEmptyArgs: Boolean = true
     val fileSystem by requireObject<FileSystem>("fs")
-
-    override fun help(context: Context): String = """
-        Hide a message and / or file attachments in an image.
-
-        The generated recovery key is printed to _STDOUT_.
-        Store it securely, on a different medium or filesystem from the resulting image.
-        It is the only way to recover the original payload.
-    """.trimIndent()
-
-    override fun helpEpilog(context: Context): String {
-        val header = context.terminal.theme.warning
-        val example = context.terminal.theme.muted
-        return """
-            ${header("Examples")}:
-         
-            - Hide a text message:\
-              ${example("stego hide -i in.png -o out.png -m 'Hello'")}
-            
-            - Hide a file:\
-              ${example("stego hide -i in.png -o out.png secret.md")}
-              
-            - Edit the image in-place:\
-              ${example("stego hide -e image.png secret.md")}
-              
-            - Use passphrase:\
-              ${example("stego hide -p -e image.png -m 'Hello'")}
-        """.trimIndent()
-    }
 
     val imageFiles by ImageFileOptions()
     val encodingOptions by EncodingOptions()
@@ -79,6 +42,34 @@ class HideCommand : CliktCommand("hide") {
         .convert { Path(it) }
         .multiple()
         .validateCatching { paths -> paths.forEach { fileSystem.checkFile(it) } }
+
+    override fun help(context: Context): String = """
+        Hide a message and / or file attachments in an image.
+
+        The generated recovery key is printed to _STDOUT_.
+        Store it securely, on a different medium or filesystem from the resulting image.
+        It is the only way to recover the original payload.
+    """.trimIndent()
+
+    override fun helpEpilog(context: Context): String {
+        val header = context.terminal.theme.warning
+        val example = context.terminal.theme.muted
+        return """
+            ${header("Examples")}:
+
+            - Hide a text message:\
+              ${example("stego hide -i in.png -o out.png -m 'Hello'")}
+
+            - Hide a file:\
+              ${example("stego hide -i in.png -o out.png secret.md")}
+
+            - Edit the image in-place:\
+              ${example("stego hide -e image.png secret.md")}
+
+            - Use passphrase:\
+              ${example("stego hide -p -e image.png -m 'Hello'")}
+        """.trimIndent()
+    }
 
     override fun run() {
         if (message == null && attachments.isEmpty()) {

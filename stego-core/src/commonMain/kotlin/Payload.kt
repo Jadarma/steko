@@ -16,18 +16,12 @@ public sealed interface StegoPayload
  *                       Emulates a primitive, flat filesystem.
  */
 @CborArray
-@ObjectTags(0x53544547uL) // "STEG" Magic identifier for double-checking.
+@ObjectTags(Payload.PAYLOAD_TAG_MAGIC)
 @Serializable
 public class Payload(
     public val message: String? = null,
     public val attachments: Map<String, ByteArray> = emptyMap(),
 ) : StegoPayload {
-
-    /** Construct a payload containing only a message. */
-    public constructor(message: String) : this(message = message, attachments = emptyMap())
-
-    /** Construct a payload containing only attachments. */
-    public constructor(attachments: Map<String, ByteArray>) : this(message = null, attachments = attachments)
 
     init {
         require(message != null || attachments.isNotEmpty()) { "Payload cannot be empty." }
@@ -35,10 +29,27 @@ public class Payload(
         attachments.forEach { (name, content) ->
             require(content.isNotEmpty()) { "Attachment contents must not be empty." }
             require(name.isNotEmpty()) { "Attachments must have a name." }
-            require(name.length < 256) { "Attachments names must not exceed 255 characters." }
+            require(name.length <= MAX_ATTACHMENT_NAME_LENGTH) {
+                "Attachments names must not exceed $MAX_ATTACHMENT_NAME_LENGTH characters."
+            }
             require(!name.contains("/") && !name.contains(":")) { "Attachments contain illegal characters." }
             require(name.trim() == name) { "Attachment names must not have surrounding whitespace." }
         }
+    }
+
+    /** Construct a payload containing only a message. */
+    public constructor(message: String) : this(message = message, attachments = emptyMap())
+
+    /** Construct a payload containing only attachments. */
+    public constructor(attachments: Map<String, ByteArray>) : this(message = null, attachments = attachments)
+
+    public companion object {
+
+        /** Magic identifier for double-checking: binary for "STEG". */
+        private const val PAYLOAD_TAG_MAGIC = 0x53544547uL
+
+        /** An arbitrary limit to the attachment name size, even if filesystems support longer ones, to be nice. */
+        private const val MAX_ATTACHMENT_NAME_LENGTH = 255
     }
 }
 

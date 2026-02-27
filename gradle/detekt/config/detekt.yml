@@ -21,12 +21,11 @@ comments:
   OutdatedDocumentation:
     active: true
   UndocumentedPublicClass:
-    active: true
-    ignoreDefaultCompanionObject: true
+    active: false
   UndocumentedPublicFunction:
-    active: true
+    active: false
   UndocumentedPublicProperty:
-    active: true
+    active: false
 
 # https://detekt.dev/docs/rules/complexity
 complexity:
@@ -210,6 +209,8 @@ performance:
     active: true
   SpreadOperator:
     active: true
+  UnnecessaryInitOnArray:
+    active: true
   UnnecessaryPartOfBinaryExpression:
     active: true
   UnnecessaryTemporaryInstantiation:
@@ -308,6 +309,8 @@ style:
     active: true
   BracesOnIfStatements:
     active: true
+    singleLine: 'necessary'
+    multiLine: 'consistent'
   BracesOnWhenStatements:
     active: true
   CanBeNonNullable:
@@ -430,6 +433,8 @@ style:
   UnnecessaryBracesAroundTrailingLambda:
     active: true
   UnnecessaryFilter:
+    active: true
+  UnnecessaryFullyQualifiedName:
     active: true
   UnnecessaryInheritance:
     active: true

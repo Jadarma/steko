@@ -15,6 +15,15 @@ import kotlinx.io.readTo
  */
 public value class Key private constructor(internal val bytes: ByteString) {
 
+    init {
+        require(bytes.size == SIZE_BYTES) {
+            "Invalid key: got ${bytes.size} bytes, expected exactly $SIZE_BYTES."
+        }
+        require(bytes.toByteArray(0, Int.SIZE_BYTES).any { it != 0.toByte() }) {
+            "Invalid key: leading 32 bits are all zero, bitmask impossible to use."
+        }
+    }
+
     /** Construct a key from its binary representation. */
     public constructor(bytes: ByteArray) : this(ByteString(bytes))
 
@@ -27,14 +36,6 @@ public value class Key private constructor(internal val bytes: ByteString) {
     /** Encodes the key in its hex-string representation. */
     public fun toHexString(): String = bytes.toHexString()
 
-    init {
-        require(bytes.size == SIZE_BYTES) {
-            "Invalid key: got ${bytes.size} bytes, expected exactly $SIZE_BYTES."
-        }
-        require(bytes.toByteArray(0, Int.SIZE_BYTES).any { it != 0.toByte() }) {
-            "Invalid key: leading 32 bits are all zero, bitmask impossible to use."
-        }
-    }
 
     public companion object {
 
