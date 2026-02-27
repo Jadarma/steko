@@ -21,6 +21,8 @@ import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
 import kotlinx.io.files.Path
 import io.github.jadarma.stego.cli.util.FileSystem
+import io.github.jadarma.stego.core.generateBlocking
+import io.github.jadarma.stego.core.hideBlocking
 
 /** Subcommand for hiding a payload inside an image file. */
 class HideCommand : CliktCommand("hide") {
@@ -93,7 +95,7 @@ class HideCommand : CliktCommand("hide") {
         )
 
         image
-            .runCatching { hide(key, payload, encodingOptions.noise) }
+            .runCatching { hideBlocking(key, payload, encodingOptions.noise) }
             .getOrElse { cause ->
                 if (cause is IndexOutOfBoundsException) exitError(
                     "Payload cannot fit in this image" + cause.message.orEmpty() + ". Use a larger image, or bitmask.",
@@ -121,6 +123,6 @@ class HideCommand : CliktCommand("hide") {
             else -> readlnOrNull()
         } ?: exitError("Could not get credential.")
 
-        return Key.generate(passphrase = value)
+        return Key.generateBlocking(passphrase = value)
     }
 }

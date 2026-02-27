@@ -24,8 +24,8 @@ internal class StegoAlgorithm(
     val capacity: Int = capacityFor(pixels.size, bitmask)
     private val cipher = encryptionKey.cipher(tagSize = 128.bits)
 
-    fun hide(payload: ByteArray, rawPayload: Boolean = true, noise: Boolean = false) {
-        val encrypted = cipher.encryptBlocking(payload)
+    suspend fun hide(payload: ByteArray, rawPayload: Boolean = true, noise: Boolean = false) {
+        val encrypted = cipher.encrypt(payload)
         val requiredCapacity = Int.SIZE_BYTES * 2 + encrypted.size
         if (requiredCapacity > capacity) {
             throw IndexOutOfBoundsException("(${requiredCapacity}B > ${capacity}B)")
@@ -42,13 +42,13 @@ internal class StegoAlgorithm(
         }
     }
 
-    fun show(): Pair<ByteArray, Boolean>? = runCatching {
+    suspend fun show(): Pair<ByteArray, Boolean>? = runCatching {
         val source = StegoSource(this).buffered()
         check(source.readInt() == challenge) { "Challenge failed. Image does not contain payload for this key." }
         val length = source.readInt()
         val isRaw = length < 0
         val data = source.readByteArray(length.absoluteValue)
-        cipher.decryptBlocking(data) to isRaw
+        cipher.decrypt(data) to isRaw
     }.getOrNull()
 
     /** Modifies the current image, adding random data over bits specified by the [bitmask]. */
@@ -61,11 +61,11 @@ internal class StegoAlgorithm(
 
     companion object {
 
-        fun createFor(pixels: IntArray, key: Key): StegoAlgorithm {
+        suspend fun createFor(pixels: IntArray, key: Key): StegoAlgorithm {
 
             val aesKey = CryptographySystem.getDefaultProvider()
                 .get(AES.GCM).keyDecoder()
-                .decodeFromByteStringBlocking(AES.Key.Format.RAW, key.bytes)
+                .decodeFromByteString(AES.Key.Format.RAW, key.bytes)
 
             val bitmask = Buffer().use { buffer ->
                 buffer.write(key.bytes, 0, Int.SIZE_BYTES)
@@ -73,7 +73,7 @@ internal class StegoAlgorithm(
             }
 
             val sha256 = CryptographySystem.getDefaultProvider().get(SHA256).hasher()
-            val digest = sha256.hashBlocking(key.bytes)
+            val digest = sha256.hash(key.bytes)
 
             val challenge = Buffer().use { buffer ->
                 buffer.write(digest)

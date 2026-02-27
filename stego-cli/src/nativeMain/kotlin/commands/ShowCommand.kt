@@ -17,6 +17,8 @@ import io.github.jadarma.stego.core.Image
 import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
 import io.github.jadarma.stego.core.RawPayload
+import io.github.jadarma.stego.core.generateBlocking
+import io.github.jadarma.stego.core.showBlocking
 import kotlinx.io.files.Path
 
 class ShowCommand : CliktCommand() {
@@ -87,7 +89,7 @@ class ShowCommand : CliktCommand() {
     override fun run() {
         val key = getKey()
         val image = Image.load(fileSystem, imagePath)
-        val payload = image.show(key) ?: exitError("Could not find any secret using this key.", 2)
+        val payload = image.showBlocking(key) ?: exitError("Could not find any secret using this key.", 2)
 
         if (payload is RawPayload) {
             printToStdOut(payload.data)
@@ -137,7 +139,7 @@ class ShowCommand : CliktCommand() {
         } ?: exitError("Could not read $target.")
 
         return runCatching {
-            if (usePassphrase) Key.generate(value) else Key(value)
+            if (usePassphrase) Key.generateBlocking(value) else Key(value)
         }.getOrElse {
             exitError("Could not parse $target.")
         }

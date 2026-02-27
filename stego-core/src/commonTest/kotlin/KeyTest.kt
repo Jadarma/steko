@@ -11,12 +11,12 @@ class KeyTest : FunSpec({
 
     val exampleKeyString = "01010100b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a3f6c7"
     val exampleKeyPassphrase = "hunter2"
-    val exampleKey = Key.generate(exampleKeyPassphrase)
     val exampleBitmask = 0x01010100
     val exampleChallenge = 0x8e5c125c.toInt()
-    val stegoFor = { key: Key -> StegoAlgorithm.createFor(intArrayOf(), key) }
 
     context("Generation") {
+        val stegoFor = suspend { key: Key -> StegoAlgorithm.createFor(intArrayOf(), key) }
+
         test("Can generate a random key") {
             val key = shouldNotThrowAny { Key.generate() }
             stegoFor(key).bitmask shouldBe 0x01010100
@@ -39,6 +39,8 @@ class KeyTest : FunSpec({
     }
 
     context("Serialization") {
+        val exampleKey = Key.generate(exampleKeyPassphrase)
+
         test("Can serialize from hex string") {
             val encoded = exampleKey.toHexString()
             val decoded = Key(encoded)

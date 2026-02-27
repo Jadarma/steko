@@ -68,10 +68,10 @@ public value class Key private constructor(internal val bytes: ByteString) {
          * This allows human-friendly interaction.
          * Note that when using this mode, the bitmask cannot be changed from the default.
          */
-        public fun generate(passphrase: String): Key {
+        public suspend fun generate(passphrase: String): Key {
             val bytes = CryptographySystem.getDefaultProvider()
                 .get(SHA256).hasher()
-                .hashBlocking(passphrase.encodeToByteArray())
+                .hash(passphrase.encodeToByteArray())
             Buffer().use {
                 it.writeInt(DEFAULT_BITMASK)
                 it.readTo(bytes, 0, Int.SIZE_BYTES)

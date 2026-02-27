@@ -39,7 +39,7 @@ public class Image(
      * @throws IndexOutOfBoundsException If the payload cannot fit inside this image.
      * @return This same instance.
      */
-    public fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image = apply {
+    public suspend fun hide(key: Key, payload: StegoPayload, noise: Boolean = true): Image = apply {
         StegoAlgorithm.createFor(pixels, key).hide(
             payload = payload.encodeToByteArray(),
             rawPayload = payload is RawPayload,
@@ -54,7 +54,7 @@ public class Image(
      *
      * @return Either type of payload, as specified by the carrier image, or `null` if the key doesn't fit.
      */
-    public fun show(key: Key): StegoPayload? {
+    public suspend fun show(key: Key): StegoPayload? {
         val (data, isRaw) = StegoAlgorithm.createFor(pixels, key).show() ?: return null
         return if (isRaw) RawPayload(data)
         else runCatching { cborFormat.decodeFromByteArray(Payload.serializer(), data) }.getOrNull()
@@ -63,12 +63,13 @@ public class Image(
     /**
      * Attempt to use the [key] to extract a payload and [convert] it to an arbitrary type.
      *
+     * @param T       The custom type to deserialize.
      * @param key     The key which was used to hide the payload previously.
      * @param convert A custom deserializer.
      *
      * @return The deserialized type, or `null` if the key doesn't fit. Note this does _not_ catch [convert] exceptions.
      */
-    public fun <T : Any> show(key: Key, convert: (ByteArray) -> T): T? {
+    public suspend fun <T : Any> show(key: Key, convert: (ByteArray) -> T): T? {
         val data = StegoAlgorithm.createFor(pixels, key).show()?.first ?: return null
         return convert(data)
     }

@@ -15,6 +15,5 @@
     <ID>MagicNumber:Xoshiro256PlusPlus.kt:Xoshiro256PlusPlus$64</ID>
     <ID>MatchingDeclarationName:StegoParameters.kt:StegoAlgorithm</ID>
     <ID>MaxLineLength:StegoParameters.kt:StegoAlgorithm.Companion$*</ID>
-    <ID>OutdatedDocumentation:Image.kt:Image$public fun &lt;T : Any&gt; show: T?</ID>
   </CurrentIssues>
 </SmellBaseline>

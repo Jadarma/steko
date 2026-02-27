@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.3.10"               # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
 kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
+kotlin-coroutines = "1.10.2"    # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
 kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg.cryptography/cryptography-core
 kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
@@ -13,6 +14,7 @@ kotlin-binaryCompat = "0.18.1"  # https://mvnrepository.com/artifact/org.jetbrai
 toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "kotlin-cryptography" }
 kotlin-cryptography-optimalProvider = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "kotlin-cryptography" }
 kotlin-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlin-io" }

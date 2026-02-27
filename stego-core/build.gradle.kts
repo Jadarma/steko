@@ -21,6 +21,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.kotlin.coroutines.core)
             implementation(libs.kotlin.io.core)
             implementation(libs.kotlin.serialization.cbor)
             implementation(libs.kotlin.cryptography.core)
