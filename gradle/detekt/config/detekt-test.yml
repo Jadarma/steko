@@ -10,6 +10,8 @@ comments:
     active: false
 
 complexity:
+  CognitiveComplexMethod:
+    active: false
   StringLiteralDuplication:
     active: false
 
@@ -25,4 +27,6 @@ style:
   MagicNumber:
     active: false
   UnderscoresInNumericLiterals:
+    active: false
+  WildcardImport:
     active: false

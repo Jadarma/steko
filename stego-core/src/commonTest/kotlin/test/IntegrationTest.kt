@@ -1,100 +1,217 @@
 package io.github.jadarma.stego.core.test
 
 import com.goncalossilva.resources.Resource
-import io.github.jadarma.stego.core.Image
-import io.github.jadarma.stego.core.Key
 import io.github.jadarma.stego.core.Payload
 import io.github.jadarma.stego.core.RawPayload
-import io.kotest.assertions.asClue
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 
 class IntegrationTest : FunSpec({
 
-    context("Attachments") {
-        val payload = Resource("examples/attachments/anImage.png").readBytes()
-        val key = Key("03030300fbc58d4fe7ed6ddb52d442c8318e70b4d197e30c6f32fc6dc955d89e")
-
-        test("Can extract normal payloads") {
-            val carrier = Image.decodeFromRgba(Resource("examples/attachments/normalPayload.rgba"))
-            val (name, data) = carrier.show(key).shouldNotBeNull()
-                .shouldBeInstanceOf<Payload>()
-                .attachments.entries.single()
-            name shouldBe "anImage.png"
-            data contentEquals payload shouldBe true
-        }
-
-        test("Can extract raw payloads") {
-            val carrier = Image.decodeFromRgba(Resource("examples/attachments/rawPayload.rgba"))
-            carrier.show(key).shouldNotBeNull()
-                .shouldBeInstanceOf<RawPayload>()
-                .data.contentEquals(payload)
-                .shouldBeTrue()
-        }
-    }
+    val original = Resource("examples/original.rgba")
 
     context("Bitmasks") {
-        val lorem = Resource("examples/bitmask/lorem.txt").readText().trimEnd()
-        val keyEntropy = "723089ec870a91fa5f6134abb5dfcc821611f67f0cca16031e6e4aaa"
 
-        val samples = listOf("01010100", "00010000", "02000200", "00000001").associate { mask ->
-            Key(mask + keyEntropy) to Image.decodeFromRgba(Resource("examples/bitmask/0x$mask.rgba"))
-        }
+        val payload = Payload("Hello, World!")
+        val keys = listOf("k00_a1", "k01_g1", "k02_r1g1b1", "k03_r2b2").map { Resource("examples/keys/$it.key") }
+        val expected = listOf("k00", "k01", "k02", "k03").map { Resource("examples/outputs/${it}.rgba") }
 
-        test("Each Key can read its own image") {
-            samples.forEach { (key, carrier) ->
-                key.toHexString().asClue {
-                    carrier.show(key)
-                        .shouldNotBeNull()
-                        .shouldBeInstanceOf<Payload>()
-                        .message.shouldBe(lorem)
+        test("Can use different bitmasks to hide payload.") {
+            keys.indices.forEach { index ->
+                withClue("Key k0$index did not encode to expected image.") {
+                    hidingTest(
+                        original = original,
+                        hexKey = keys[index],
+                        expected = expected[index],
+                        noise = false,
+                        payload = payload,
+                    )
                 }
             }
         }
 
-        test("No Key can read other's image") {
-            samples.keys.forEach { key ->
-                key.toHexString().asClue {
-                    samples.filterKeys { it != key }.values.forEach { otherCarrier ->
-                        shouldNotThrowAny { otherCarrier.show(key) }.shouldBeNull()
+        test("Each key may only decode its own payload.") {
+            keys.indices.forEach { keyIndex ->
+                expected.indices.forEach { imageIndex ->
+                    withClue("Key k0$keyIndex did not decode image k0${imageIndex}.rgba properly.") {
+                        showingTest(
+                            carrier = expected[imageIndex],
+                            hexKey = keys[keyIndex],
+                            expected = payload.takeIf { keyIndex == imageIndex },
+                        )
                     }
                 }
             }
         }
     }
 
-    test("Nostradamus - Can extract different messages with different keys") {
-        val nostradamus = Image.decodeFromRgba(Resource("examples/nostradamus/oracle.rgba"))
-        val payloadA = "I foresee that Team Red shall be victorious!"
-        val payloadB = "In the starts it was written, and so it shall be: Team Blue will prevail!"
-        val payloadC = "I play both sides so I always come out on top. It will be of course, a tie!"
-        val keyA = Key("0100000075df56f4044d72f004d34f15e3ba12801fe5620a7a0a7246e2e29832")
-        val keyB = Key("00010000c8a9e19ee0165902aa25666cd3a9c1d0dc804e90681ae458ca693ab5")
-        val keyC = Key("00000100e3f970ddd747f3de8f30f5f9416b97edaa1091d167fb6801afddea89")
+    context("Noise") {
+        val payload = Payload("Hello, World!")
+        val key = Resource("examples/keys/k50_hunter2.key")
 
-        withClue("Could not read payload A") {
-            nostradamus.show(keyA)
-                .shouldNotBeNull()
-                .shouldBeInstanceOf<Payload>()
-                .message.shouldBe(payloadA)
+        test("Can encode with noise.") {
+            hidingTest(
+                original = original,
+                expected = Resource("examples/outputs/k50_noise.rgba"),
+                hexKey = key,
+                noise = true,
+                payload = payload,
+            )
         }
-        withClue("Could not read payload B") {
-            nostradamus.show(keyB)
-                .shouldNotBeNull()
-                .shouldBeInstanceOf<Payload>()
-                .message.shouldBe(payloadB)
+
+        test("Can encode without noise.") {
+            hidingTest(
+                original = original,
+                expected = Resource("examples/outputs/k50_clean.rgba"),
+                hexKey = key,
+                noise = false,
+                payload = payload,
+            )
         }
-        withClue("Could not read payload C") {
-            nostradamus.show(keyC)
-                .shouldNotBeNull()
-                .shouldBeInstanceOf<Payload>()
-                .message.shouldBe(payloadC)
+
+        test("Noise does not affect decoding") {
+            showingTest(
+                carrier = Resource("examples/outputs/k50_clean.rgba"),
+                hexKey = key,
+                expected = payload,
+            )
+            showingTest(
+                carrier = Resource("examples/outputs/k50_noise.rgba"),
+                hexKey = key,
+                expected = payload,
+            )
+        }
+
+    }
+
+    context("Payloads") {
+
+        val key = Resource("examples/keys/k10_r3g3b3.key")
+
+        test("Can hide simple messages.") {
+            val expected = Resource("examples/outputs/k10_message.rgba")
+            val payload = Payload("Hello, World!")
+            hidingTest(
+                original = original,
+                expected = expected,
+                hexKey = key,
+                noise = true,
+                payload = payload,
+            )
+            showingTest(
+                carrier = expected,
+                hexKey = key,
+                expected = payload,
+            )
+        }
+
+        test("Can hide attachments.") {
+            val expected = Resource("examples/outputs/k10_attachments.rgba")
+            val payload = Payload(mapOf("p1_lorem.md" to Resource("examples/payloads/p1_lorem.md").readBytes()))
+
+            hidingTest(
+                original = original,
+                expected = expected,
+                hexKey = key,
+                noise = true,
+                payload = payload,
+            )
+            showingTest(
+                carrier = expected,
+                hexKey = key,
+                expected = payload,
+            )
+        }
+
+        test("Can hide messages and attachments.") {
+            val expected = Resource("examples/outputs/k10_combo.rgba")
+            val payload = Payload(
+                message = "Hello, World!",
+                attachments = mapOf("p1_lorem.md" to Resource("examples/payloads/p1_lorem.md").readBytes()),
+            )
+
+            hidingTest(
+                original = original,
+                expected = expected,
+                hexKey = key,
+                noise = true,
+                payload = payload,
+            )
+            showingTest(
+                carrier = expected,
+                hexKey = key,
+                expected = payload,
+            )
+        }
+
+        test("Can hide raw data.") {
+            val expected = Resource("examples/outputs/k10_raw.rgba")
+            val payload = RawPayload(Resource("examples/payloads/p0_image.png").readBytes())
+
+            hidingTest(
+                original = original,
+                expected = expected,
+                hexKey = key,
+                noise = true,
+                payload = payload,
+            )
+            showingTest(
+                carrier = expected,
+                hexKey = key,
+                expected = payload,
+            )
+        }
+    }
+
+    context("Nostradamus") {
+
+        val payloadA = Payload("I foresee that Team Red shall be victorious!")
+        val payloadB = Payload("In the starts it was written, and so it shall be: Team Blue will prevail!")
+        val payloadC = Payload("I play both sides so I always come out on top. It will be of course, a tie!")
+        val keyA = Resource("examples/keys/k20_r1.key")
+        val keyB = Resource("examples/keys/k30_g1.key")
+        val keyC = Resource("examples/keys/k40_b1.key")
+
+        test("Can encode with multiple non-overlapping keys.") {
+            hidingTest(
+                original = original,
+                expected = Resource("examples/outputs/k20_nostradamus.rgba"),
+                hexKey = keyA,
+                noise = true,
+                payload = payloadA,
+            )
+            hidingTest(
+                original = Resource("examples/outputs/k20_nostradamus.rgba"),
+                expected = Resource("examples/outputs/k30_nostradamus.rgba"),
+                hexKey = keyB,
+                noise = true,
+                payload = payloadB,
+            )
+            hidingTest(
+                original = Resource("examples/outputs/k30_nostradamus.rgba"),
+                expected = Resource("examples/outputs/k40_nostradamus.rgba"),
+                hexKey = keyC,
+                noise = true,
+                payload = payloadC,
+            )
+        }
+
+        test("Can decode with multiple non-overlapping keys.") {
+            showingTest(
+                carrier = Resource("examples/outputs/k40_nostradamus.rgba"),
+                hexKey = keyA,
+                expected = payloadA,
+            )
+            showingTest(
+                carrier = Resource("examples/outputs/k40_nostradamus.rgba"),
+                hexKey = keyB,
+                expected = payloadB,
+            )
+            showingTest(
+                carrier = Resource("examples/outputs/k40_nostradamus.rgba"),
+                hexKey = keyC,
+                expected = payloadC,
+            )
         }
     }
 })

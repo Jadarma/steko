@@ -6,7 +6,7 @@ kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg
 kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
 
-kotest = "6.1.4"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
+kotest = "6.1.3"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
 ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
 kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
 detekt = "2.0.0-alpha.2"        # https://mvnrepository.com/artifact/dev.detekt/detekt-gradle-plugin

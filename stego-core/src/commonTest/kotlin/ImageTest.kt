@@ -33,11 +33,11 @@ class ImageTest : FunSpec({
     context("Serialization") {
 
         test("Can read from and write to RGBA") {
-            val raw = Resource("examples/attachments/original.rgba").readBytes()
+            val raw = Resource("examples/original.rgba").readBytes()
             val decoded = shouldNotThrowAny { Image.decodeFromRgba(raw) }
 
             withClue("Wrong default size values") {
-                decoded.width shouldBe 768 * 512
+                decoded.width shouldBe 512 * 512
                 decoded.height shouldBe 1
             }
 
@@ -61,16 +61,12 @@ class ImageTest : FunSpec({
         }
 
         test("Optional size parameter is validated") {
-            val raw = Resource("examples/attachments/original.rgba").readBytes()
+            val raw = Resource("examples/original.rgba").readBytes()
             shouldThrow<IllegalArgumentException> {
                 Image.decodeFromRgba(raw, 42 to 1337)
             }
             shouldNotThrowAny {
-                Image.decodeFromRgba(raw, 768 to 512)
-            }
-            shouldNotThrowAny {
-                // Technically wrong but still a valid image, that is a user error.
-                Image.decodeFromRgba(raw, 512 to 768)
+                Image.decodeFromRgba(raw, 512 to 512)
             }
         }
     }

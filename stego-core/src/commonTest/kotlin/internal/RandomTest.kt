@@ -37,9 +37,9 @@ class RandomTest : FunSpec({
 
     test("The image pixel order is the same when using the same key.") {
         val image = Image(100, 100, IntArray(100 * 100))
-        val keyA = Key.generate()
+        val keyA = Key.generate("One")
         val keyB = Key(keyA.toHexString())
-        val keyC = Key.generate()
+        val keyC = Key.generate("Two")
 
         val shuffledByA = StegoAlgorithm.createFor(image.pixels, keyA).pixelOrder
         val shuffledByB = StegoAlgorithm.createFor(image.pixels, keyB).pixelOrder

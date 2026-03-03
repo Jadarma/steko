@@ -18,7 +18,6 @@ internal class StegoAlgorithm(
     val bitmask: Int,
     val challenge: Int,
     encryptionKey: AES.GCM.Key,
-    val random: Random = CryptographySystem.getDefaultRandom(),
 ) {
     val maskedBits: IntArray = maskedBitsOf(bitmask)
     val capacity: Int = capacityFor(pixels.size, bitmask)
@@ -53,6 +52,7 @@ internal class StegoAlgorithm(
 
     /** Modifies the current image, adding random data over bits specified by the [bitmask]. */
     fun addNoise() {
+        val random = CryptographySystem.getDefaultRandom()
         val invMask = bitmask.inv()
         for (index in pixels.indices) {
             pixels[index] = (pixels[index] and invMask) or (random.nextInt() and bitmask)
@@ -97,7 +97,6 @@ internal class StegoAlgorithm(
                 bitmask = bitmask,
                 challenge = challenge,
                 encryptionKey = aesKey,
-                random = CryptographySystem.getDefaultRandom(),
             )
         }
 
