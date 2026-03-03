@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+group = CompileOptions.GROUP
+version = CompileOptions.VERSION
+
 kotlin {
     compilerOptions {
         languageVersion = Kotlin.languageVersion

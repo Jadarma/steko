@@ -5,9 +5,6 @@ plugins {
     id("conventions.detekt")
 }
 
-group = "io.github.jadarma.stego"
-version = "0.1.0-SNAPSHOT"
-
 kotlin {
     linuxX64()
     linuxArm64()
