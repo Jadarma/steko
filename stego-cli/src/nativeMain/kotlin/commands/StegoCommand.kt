@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.output.MordantMarkdownHelpFormatter
 import com.github.ajalt.clikt.parameters.options.versionOption
 import io.github.jadarma.stego.cli.util.FileSystem
 import io.github.jadarma.stego.cli.util.RealFileSystem
+import io.github.jadarma.stego.cli.BuildConfig.APP_VERSION
 
 class StegoCommand(
     private val fileSystem: FileSystem = RealFileSystem,
@@ -16,7 +17,7 @@ class StegoCommand(
 
     init {
         installMordantMarkdown()
-        versionOption("0.1.0")
+        versionOption(APP_VERSION)
 
         context {
             helpFormatter = { ctx ->

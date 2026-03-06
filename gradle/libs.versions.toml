@@ -11,6 +11,7 @@ ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.
 kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
 detekt = "2.0.0-alpha.2"        # https://mvnrepository.com/artifact/dev.detekt/detekt-gradle-plugin
 kotlin-binaryCompat = "0.18.1"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx.binary-compatibility-validator/org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin
+buildConfig = "6.0.8"           # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
 toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
@@ -33,6 +34,7 @@ gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.gonc
 gradlePluginDep-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 gradlePluginDep-detekt = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
 gradlePluginDep-kotlin-binaryCompat = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "kotlin-binaryCompat" }
+gradlePluginDep-buildConfig = { module = "com.github.gmazzo.buildconfig:com.github.gmazzo.buildconfig.gradle.plugin", version.ref = "buildConfig" }
 gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
 
 [bundles]
@@ -46,7 +48,7 @@ gradlePlugins = [
     "gradlePluginDep-ksp",
     "gradlePluginDep-detekt",
     "gradlePluginDep-kotlin-binaryCompat",
-
+    "gradlePluginDep-buildConfig",
     "gradlePluginDep-javaToolchains",
 ]
 
@@ -61,4 +63,5 @@ kotest = { id = "io.kotest" }
 ksp = { id = "com.google.devtools.ksp" }
 detekt = { id = "dev.detekt" }
 kotlin-binaryCompat = { id = "org.jetbrains.kotlinx.binary-compatibility-validator" }
+buildConfig = { id = "com.github.gmazzo.buildconfig" }
 javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }

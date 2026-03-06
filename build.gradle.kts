@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kotlin.binaryCompat) apply false
+    alias(libs.plugins.buildConfig) apply false
 }
