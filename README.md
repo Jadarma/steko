@@ -3,6 +3,8 @@
 A simple and secure steganography tool using AES, the LSB method and pseudorandom pixel order to hide payloads in
 lossless image formats.
 
+![Asciinema Demo Gif](docs/demo.gif)
+
 ## 📜 Documentation
 
 - [**CLI User Guide**](docs/cli_userguide.md) - Describes the CLI arguments and exemplifies common use-cases
