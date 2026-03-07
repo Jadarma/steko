@@ -1,0 +1,93 @@
+// Klib ABI Dump
+// Targets: [linuxArm64, linuxX64, macosArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.github.jadarma.steko:steko-core>
+sealed interface io.github.jadarma.steko.core/StekoPayload // io.github.jadarma.steko.core/StekoPayload|null[0]
+
+final class io.github.jadarma.steko.core/Image { // io.github.jadarma.steko.core/Image|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/IntArray) // io.github.jadarma.steko.core/Image.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.IntArray){}[0]
+
+    final val height // io.github.jadarma.steko.core/Image.height|{}height[0]
+        final fun <get-height>(): kotlin/Int // io.github.jadarma.steko.core/Image.height.<get-height>|<get-height>(){}[0]
+    final val pixels // io.github.jadarma.steko.core/Image.pixels|{}pixels[0]
+        final fun <get-pixels>(): kotlin/IntArray // io.github.jadarma.steko.core/Image.pixels.<get-pixels>|<get-pixels>(){}[0]
+    final val width // io.github.jadarma.steko.core/Image.width|{}width[0]
+        final fun <get-width>(): kotlin/Int // io.github.jadarma.steko.core/Image.width.<get-width>|<get-width>(){}[0]
+
+    final fun copy(): io.github.jadarma.steko.core/Image // io.github.jadarma.steko.core/Image.copy|copy(){}[0]
+    final fun encodeToRgba(): kotlin/ByteArray // io.github.jadarma.steko.core/Image.encodeToRgba|encodeToRgba(){}[0]
+    final suspend fun <#A1: kotlin/Any> show(io.github.jadarma.steko.core/Key, kotlin/Function1<kotlin/ByteArray, #A1>): #A1? // io.github.jadarma.steko.core/Image.show|show(io.github.jadarma.steko.core.Key;kotlin.Function1<kotlin.ByteArray,0:0>){0§<kotlin.Any>}[0]
+    final suspend fun hide(io.github.jadarma.steko.core/Key, io.github.jadarma.steko.core/StekoPayload, kotlin/Boolean = ...): io.github.jadarma.steko.core/Image // io.github.jadarma.steko.core/Image.hide|hide(io.github.jadarma.steko.core.Key;io.github.jadarma.steko.core.StekoPayload;kotlin.Boolean){}[0]
+    final suspend fun show(io.github.jadarma.steko.core/Key): io.github.jadarma.steko.core/StekoPayload? // io.github.jadarma.steko.core/Image.show|show(io.github.jadarma.steko.core.Key){}[0]
+
+    final object Companion { // io.github.jadarma.steko.core/Image.Companion|null[0]
+        final fun decodeFromRgba(kotlin/ByteArray, kotlin/Pair<kotlin/Int, kotlin/Int>? = ...): io.github.jadarma.steko.core/Image // io.github.jadarma.steko.core/Image.Companion.decodeFromRgba|decodeFromRgba(kotlin.ByteArray;kotlin.Pair<kotlin.Int,kotlin.Int>?){}[0]
+    }
+}
+
+final class io.github.jadarma.steko.core/Payload : io.github.jadarma.steko.core/StekoPayload { // io.github.jadarma.steko.core/Payload|null[0]
+    constructor <init>(kotlin.collections/Map<kotlin/String, kotlin/ByteArray>) // io.github.jadarma.steko.core/Payload.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlin.ByteArray>){}[0]
+    constructor <init>(kotlin/String) // io.github.jadarma.steko.core/Payload.<init>|<init>(kotlin.String){}[0]
+    constructor <init>(kotlin/String? = ..., kotlin.collections/Map<kotlin/String, kotlin/ByteArray> = ...) // io.github.jadarma.steko.core/Payload.<init>|<init>(kotlin.String?;kotlin.collections.Map<kotlin.String,kotlin.ByteArray>){}[0]
+
+    final val attachments // io.github.jadarma.steko.core/Payload.attachments|{}attachments[0]
+        final fun <get-attachments>(): kotlin.collections/Map<kotlin/String, kotlin/ByteArray> // io.github.jadarma.steko.core/Payload.attachments.<get-attachments>|<get-attachments>(){}[0]
+    final val message // io.github.jadarma.steko.core/Payload.message|{}message[0]
+        final fun <get-message>(): kotlin/String? // io.github.jadarma.steko.core/Payload.message.<get-message>|<get-message>(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<io.github.jadarma.steko.core/Payload> { // io.github.jadarma.steko.core/Payload.$serializer|null[0]
+        final val descriptor // io.github.jadarma.steko.core/Payload.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // io.github.jadarma.steko.core/Payload.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // io.github.jadarma.steko.core/Payload.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): io.github.jadarma.steko.core/Payload // io.github.jadarma.steko.core/Payload.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, io.github.jadarma.steko.core/Payload) // io.github.jadarma.steko.core/Payload.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;io.github.jadarma.steko.core.Payload){}[0]
+    }
+
+    final object Companion { // io.github.jadarma.steko.core/Payload.Companion|null[0]
+        final val $childSerializers // io.github.jadarma.steko.core/Payload.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<io.github.jadarma.steko.core/Payload> // io.github.jadarma.steko.core/Payload.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final value class io.github.jadarma.steko.core/Key { // io.github.jadarma.steko.core/Key|null[0]
+    constructor <init>(kotlin/ByteArray) // io.github.jadarma.steko.core/Key.<init>|<init>(kotlin.ByteArray){}[0]
+    constructor <init>(kotlin/String) // io.github.jadarma.steko.core/Key.<init>|<init>(kotlin.String){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.jadarma.steko.core/Key.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.jadarma.steko.core/Key.hashCode|hashCode(){}[0]
+    final fun toByteArray(): kotlin/ByteArray // io.github.jadarma.steko.core/Key.toByteArray|toByteArray(){}[0]
+    final fun toHexString(): kotlin/String // io.github.jadarma.steko.core/Key.toHexString|toHexString(){}[0]
+    final fun toString(): kotlin/String // io.github.jadarma.steko.core/Key.toString|toString(){}[0]
+
+    final object Companion { // io.github.jadarma.steko.core/Key.Companion|null[0]
+        final const val SIZE_BITS // io.github.jadarma.steko.core/Key.Companion.SIZE_BITS|{}SIZE_BITS[0]
+            final fun <get-SIZE_BITS>(): kotlin/Int // io.github.jadarma.steko.core/Key.Companion.SIZE_BITS.<get-SIZE_BITS>|<get-SIZE_BITS>(){}[0]
+        final const val SIZE_BYTES // io.github.jadarma.steko.core/Key.Companion.SIZE_BYTES|{}SIZE_BYTES[0]
+            final fun <get-SIZE_BYTES>(): kotlin/Int // io.github.jadarma.steko.core/Key.Companion.SIZE_BYTES.<get-SIZE_BYTES>|<get-SIZE_BYTES>(){}[0]
+
+        final fun generate(kotlin/Int = ...): io.github.jadarma.steko.core/Key // io.github.jadarma.steko.core/Key.Companion.generate|generate(kotlin.Int){}[0]
+        final suspend fun generate(kotlin/String): io.github.jadarma.steko.core/Key // io.github.jadarma.steko.core/Key.Companion.generate|generate(kotlin.String){}[0]
+    }
+}
+
+final value class io.github.jadarma.steko.core/RawPayload : io.github.jadarma.steko.core/StekoPayload { // io.github.jadarma.steko.core/RawPayload|null[0]
+    constructor <init>(kotlin/ByteArray) // io.github.jadarma.steko.core/RawPayload.<init>|<init>(kotlin.ByteArray){}[0]
+
+    final val data // io.github.jadarma.steko.core/RawPayload.data|{}data[0]
+        final fun <get-data>(): kotlin/ByteArray // io.github.jadarma.steko.core/RawPayload.data.<get-data>|<get-data>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.jadarma.steko.core/RawPayload.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.jadarma.steko.core/RawPayload.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.jadarma.steko.core/RawPayload.toString|toString(){}[0]
+}
+
+final fun (io.github.jadarma.steko.core/Image).io.github.jadarma.steko.core/hideBlocking(io.github.jadarma.steko.core/Key, io.github.jadarma.steko.core/StekoPayload, kotlin/Boolean = ...): io.github.jadarma.steko.core/Image // io.github.jadarma.steko.core/hideBlocking|hideBlocking@io.github.jadarma.steko.core.Image(io.github.jadarma.steko.core.Key;io.github.jadarma.steko.core.StekoPayload;kotlin.Boolean){}[0]
+final fun (io.github.jadarma.steko.core/Image).io.github.jadarma.steko.core/showBlocking(io.github.jadarma.steko.core/Key): io.github.jadarma.steko.core/StekoPayload? // io.github.jadarma.steko.core/showBlocking|showBlocking@io.github.jadarma.steko.core.Image(io.github.jadarma.steko.core.Key){}[0]
+final fun (io.github.jadarma.steko.core/Key.Companion).io.github.jadarma.steko.core/generateBlocking(kotlin/String): io.github.jadarma.steko.core/Key // io.github.jadarma.steko.core/generateBlocking|generateBlocking@io.github.jadarma.steko.core.Key.Companion(kotlin.String){}[0]
+final fun <#A: kotlin/Any> (io.github.jadarma.steko.core/Image).io.github.jadarma.steko.core/showBlocking(io.github.jadarma.steko.core/Key, kotlin/Function1<kotlin/ByteArray, #A>): #A? // io.github.jadarma.steko.core/showBlocking|showBlocking@io.github.jadarma.steko.core.Image(io.github.jadarma.steko.core.Key;kotlin.Function1<kotlin.ByteArray,0:0>){0§<kotlin.Any>}[0]

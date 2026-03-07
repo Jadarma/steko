@@ -13,15 +13,15 @@ You may, of course, use more, but remember the more significant bits you use, th
 For example, before an event, you can predict all outcomes, then share the image with your friends.
 
 ```shell 
-$ stego hide -b 0x01000000 -m "I told you outcome A was gonna happen." -e image.png > outcomeA.key
-$ stego hide -b 0x00010000 -m "I told you outcome B was gonna happen." -e image.png > outcomeB.key
-$ stego hide -b 0x00000100 -m "I told you outcome C was gonna happen." -e image.png > outcomeC.key
+$ steko hide -b 0x01000000 -m "I told you outcome A was gonna happen." -e image.png > outcomeA.key
+$ steko hide -b 0x00010000 -m "I told you outcome B was gonna happen." -e image.png > outcomeB.key
+$ steko hide -b 0x00000100 -m "I told you outcome C was gonna happen." -e image.png > outcomeC.key
 ```
 
 Afterwards, you can claim you knew all along and prove it by providing the key associated to your prediction:
 
 ```shell
-$ stego show image.png < secret.key # Renamed from outcomeB.key!
+$ steko show image.png < secret.key # Renamed from outcomeB.key!
 I told you outcome B was gonna happen.
 ```
 
@@ -39,18 +39,18 @@ only release the image and / or master key upon your demise.
 $ echo 'WhenImOldAndWise69' > lawyer.key
 $ openssl aes-256-cbc -e -pass file:lawyer.key -pbkdf2 -in deed.pdf -out deed.enc
 $ split -n 3 deed.enc 'deed-'
-$ stego hide -b 0x01000000 -e image.png deed-aa > alice.key
-$ stego hide -b 0x00010000 -e image.png deed-ab > bob.key
-$ stego hide -b 0x00000100 -e image.png deed-ac > eve.key
+$ steko hide -b 0x01000000 -e image.png deed-aa > alice.key
+$ steko hide -b 0x00010000 -e image.png deed-ab > bob.key
+$ steko hide -b 0x00000100 -e image.png deed-ac > eve.key
 ```
 
 Then, the only way they could possibly retrieve it would be to put their differences aside and share the keys in the
 presence of the lawyer:
 
 ```shell
-$ stego show image.png -o . < alice.key
-$ stego show image.png -o . < bob.key
-$ stego show image.png -o . < eve.key
+$ steko show image.png -o . < alice.key
+$ steko show image.png -o . < bob.key
+$ steko show image.png -o . < eve.key
 $ cat deed-* | openssl aes-256-cbc -d -pass file:lawyer.key -pbkdf2 > deed.pdf
 ```
 
@@ -65,14 +65,14 @@ Use the normal, less secure, passphrase method _(so you can memorize it and conf
 important, but true secret to earn trust, or maliciously feed fake information:
 
 ```shell
-$ stego hide -p -e secret.png -m 'We are awaiting vital reinforcements from an east-bound convoy.'
+$ steko hide -p -e secret.png -m 'We are awaiting vital reinforcements from an east-bound convoy.'
 ```
 
 However, you can hide the actual secret in the second least significant bit.
 Using `--no-noise` will reduce the impact it has on image quality.
 
 ```shell
-$ stego hide -b 02020200 --no-noise -e secret.png -m 'We are ready; attack at dawn.' > secret.key 
+$ steko hide -b 02020200 --no-noise -e secret.png -m 'We are ready; attack at dawn.' > secret.key 
 ```
 
 Hopefully the existence of the decoy payload will grant plausible deniability, trust, or buy time as you await rescue.

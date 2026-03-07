@@ -1,4 +1,4 @@
-# Stego
+# Steko
 
 A simple and secure steganography tool using AES, the LSB method and pseudorandom pixel order to hide payloads in
 lossless image formats.
@@ -23,10 +23,8 @@ support Windows.
 
 **Why the name?**
 
-I found no clever pun with `kt` in it so I reused the original codename I gave it in 2017.
-Unfortunately no clever pun here, I just needed a short alias, I used the first convenient thing that popped to
-mind, this is a shortening of "steganography".
-It has nothing to with dinosaurs or golang.
+_"Steko"_ is a portmanteau of steganography and Kotlin.
+No clever pun here!
 
 ## ⚖️ License
 

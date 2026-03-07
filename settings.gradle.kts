@@ -1,6 +1,6 @@
-rootProject.name = "stego"
+rootProject.name = "steko"
 includeBuild("gradle/build-logic")
-include(":stego-core", ":stego-cli")
+include(":steko-core", ":steko-cli")
 
 pluginManagement {
     repositories {

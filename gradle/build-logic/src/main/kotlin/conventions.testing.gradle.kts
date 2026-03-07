@@ -19,7 +19,7 @@ kotlin {
 }
 
 tasks.withType<AbstractTestTask>().configureEach {
-    val module = project.name.removePrefix("stego-")
+    val module = project.name.removePrefix("steko-")
     systemProperty("kotest.framework.config.fqn", "$GROUP.$module.test.TestConfig")
     failOnNoDiscoveredTests = false
     logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")

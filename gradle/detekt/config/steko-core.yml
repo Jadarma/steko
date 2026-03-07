@@ -1,0 +1,14 @@
+naming:
+  InvalidPackageDeclaration:
+    rootPackage: 'io.github.jadarma.steko.core'
+    requireRootInDeclaration: true
+
+# Enforce documentation as this is a library module.
+comments:
+  UndocumentedPublicClass:
+    active: true
+    ignoreDefaultCompanionObject: true
+  UndocumentedPublicFunction:
+    active: true
+  UndocumentedPublicProperty:
+    active: true

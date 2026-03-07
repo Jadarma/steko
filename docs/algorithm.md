@@ -1,13 +1,13 @@
-# Stego Algorithm Specification
+# Steko Algorithm Specification
 
-This document describes the implementation steps in the Stego algorithm.
+This document describes the implementation steps in the Steko algorithm.
 
 The algorithm is mostly symmetric, so each step will describe both encoding and decoding variants.
 
 ## 🏞️ Image Data
 
 The algorithm is image format agnostic, provided it losslessly encodes pixel data.
-Stego itself operates on the uncompressed, raw array of pixel values in RGBA format _(32-bit)_.
+Steko itself operates on the uncompressed, raw array of pixel values in RGBA format _(32-bit)_.
 
 ## 🔑 The Key
 
@@ -38,7 +38,7 @@ Where:
 
 ## 🔀 (Un-)Shuffling
 
-Stego does not read pixels sequentially, rather it uses a randomized order obtained by reordering its pixels using the 
+Steko does not read pixels sequentially, rather it uses a randomized order obtained by reordering its pixels using the 
 [modern Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
 For a deterministic, environment-agnostic PRNG implementation,
 [Xoshiro256++](https://prng.di.unimi.it/xoshiro256plusplus.c) is used, as the key fits nicely as its 256-bit seed.
@@ -120,7 +120,7 @@ a mathematical coincidence.
 
 ## 📦 Payload
 
-Stego offers a standard payload shape to facilitate working with messages and files.
+Steko offers a standard payload shape to facilitate working with messages and files.
 As mentioned in the header section, a bit indicates whether this format is used:
 
 - If the bit was `1`, then the payload has no particular format and should be read as a literal byte string.

@@ -1,0 +1,11 @@
+naming:
+  InvalidPackageDeclaration:
+    rootPackage: 'io.github.jadarma.steko.cli'
+    requireRootInDeclaration: true
+
+# Relax some style rules.
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: false

@@ -1,6 +1,6 @@
-# Stego Security
+# Steko Security
 
-This documents comments on the security level of the Stego algorithm.
+This documents comments on the security level of the Steko algorithm.
 In essence, it is just an extension over [`AES-GCM-256`](https://en.wikipedia.org/wiki/Galois/Counter_Mode), using the
 same key to deterministically scramble the ciphertext inside a carrier's image data.
 

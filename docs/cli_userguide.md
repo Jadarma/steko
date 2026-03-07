@@ -1,4 +1,4 @@
-# Stego CLI User Guide
+# Steko CLI User Guide
 
 This document describes the CLI arguments and exemplifies common use-cases.
 Most of these are also documented in the built-in `--help` of the command. 
@@ -13,7 +13,7 @@ The associated key is printed to _STDOUT_ and should be stored securely, you cou
 
 ### CLI Options
 
-`stego hide [<options>] [<attachment>]...`
+`steko hide [<options>] [<attachment>]...`
 
 |          Option           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |:-------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -32,25 +32,25 @@ The arguments are an optional list of files, which should be saved as attachment
 **Hiding a simple text message.**
 
 ```shell
-stego hide -e image.png -m 'Hello, World!' > secret.key
+steko hide -e image.png -m 'Hello, World!' > secret.key
 ```
 
 **Hiding entire files.**
 
 ```shell
-stego hide -e image.png example.md launch.sh > secret.key
+steko hide -e image.png example.md launch.sh > secret.key
 ```
 
 **Using a passphrase.**
 
 ```shell 
-stego hide -e image.png -p -m 'Will prompt you for a password.'
+steko hide -e image.png -p -m 'Will prompt you for a password.'
 ```
 
 **Saving a copy.**
 
 ```shell 
-stego hide -i original.png -o modified.png -m 'Original left alone' > secret.key
+steko hide -i original.png -o modified.png -m 'Original left alone' > secret.key
 ```
 
 ## 📤 Showing
@@ -67,12 +67,12 @@ File attachments won't be extracted unless specified by an option.
 The list of attachments and their sizes is also printed out when the `show` command is called from an interactive
 terminal.
 
-**NOTE:** _It is also possible the payload doesn't contain the default Stego metadata. In that case, the entire raw 
+**NOTE:** _It is also possible the payload doesn't contain the default Steko metadata. In that case, the entire raw 
           payload will be printed to STDOUT._
 
 ### CLI Options
 
-`stego hide [<options>] <image>`
+`steko hide [<options>] <image>`
 
 |        Option         | Description                                                                                          |
 |:---------------------:|:-----------------------------------------------------------------------------------------------------|
@@ -84,24 +84,24 @@ terminal.
 **Preview a payload:**
 
 ```shell
-stego show image.png < secret.key
+steko show image.png < secret.key
 ```
 
 **Extract all attachments:**
 
 ```shell
-stego show -o /tmp image.png < secret.key
+steko show -o /tmp image.png < secret.key
 ```
 
 **Use a passphrase:**
 
 ```shell
-stego show -p image.png
+steko show -p image.png
 ```
 
 ## 🖼️ Supported Formats
 
-The `stego` command is minimal, and only directly supports PNG images.
+The `steko` command is minimal, and only directly supports PNG images.
 However, since the algorithm is designed for lossless formats, these can be converted via an external application, like
 [Image Magick](https://imagemagick.org), which allows far more encoding customization.
 
@@ -114,7 +114,7 @@ Please consult the relevant documentation and make test runs for decoding afterw
 
 ```shell 
 magick input.avif output.png
-stego hide -e output.png -m 'Top Secret!' > secret.key
+steko hide -e output.png -m 'Top Secret!' > secret.key
 magick -define webp:lossless=true output.png output.webp
 ```
 
@@ -124,19 +124,19 @@ To show the payload from any format, it needs to be converted to PNG again:
 
 ```shell 
 magick output.webp output.png
-stego show output.png < secret.key
+steko show output.png < secret.key
 ```
 
 **Using raw RGBA files.**
 
-Stego can also work with raw pixel values in `.rgba` files instead of PNG to skip an extra encoding step:
+Steko can also work with raw pixel values in `.rgba` files instead of PNG to skip an extra encoding step:
 
 ```shell
 magick input.avif output.rgba
-stego hide -e output.rgba -m 'Top Secret!' > secret.key
+steko hide -e output.rgba -m 'Top Secret!' > secret.key
 IMG_SIZE="$(magick identify -ping -format "%[w]x%[h]" input.avif)"
 magick -define webp:lossless=true -size "$IMG_SIZE" -depth 8 output.rgba output.webp
 magick output.webp input.rgba
-stego show input.rgba < secret.key
+steko show input.rgba < secret.key
 rm input.rgba output.rgba
 ```
