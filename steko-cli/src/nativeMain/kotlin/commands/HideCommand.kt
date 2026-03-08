@@ -71,19 +71,32 @@ class HideCommand : CliktCommand("hide") {
         """.trimIndent()
     }
 
+    @Suppress("ThrowsCount")
     override fun run() {
+        val info = terminal.theme.info
         if (message == null && attachments.isEmpty()) {
-            val info = terminal.theme.info
             throw UsageError("No payload given. Please define a ${info("--message")} and / or pass files as arguments.")
+        }
+        if (encodingOptions.rawPayload) {
+            if (message != null) {
+                throw UsageError("The ${info("--message")} and ${info("--raw")} options are incompatible.")
+            }
+            if (attachments.size != 1) {
+                throw UsageError("When ${info("--raw")} mode is used, exactly one attachment argument is required.")
+            }
         }
 
         val key = getKey()
         val image = Image.load(fileSystem, imageFiles.input)
 
-        val payload = Payload(
-            message = message,
-            attachments = attachments.associate { it.name to fileSystem.readFile(it) },
-        )
+        val payload = if (encodingOptions.rawPayload) {
+            RawPayload(fileSystem.readFile(attachments.single()))
+        } else {
+            Payload(
+                message = message,
+                attachments = attachments.associate { it.name to fileSystem.readFile(it) },
+            )
+        }
 
         image
             .runCatching { hideBlocking(key, payload, encodingOptions.noise) }

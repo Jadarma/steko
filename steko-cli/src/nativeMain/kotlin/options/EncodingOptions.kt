@@ -57,6 +57,14 @@ class EncodingOptions : OptionGroup(
         """.trimIndent()
     ).flag("--no-noise", default = true, defaultForHelp = "Enabled")
 
+    val rawPayload: Boolean by option(
+        "-r", "--raw",
+        help = """
+            When this option is set, exactly one attachment argument is expected.
+            Hides the raw binary contents without any other metadata.
+        """.trimIndent()
+    ).nullableFlag().default(false)
+
     @Suppress("ExceptionRaisedInUnexpectedLocation")
     override fun finalize(
         context: Context,
