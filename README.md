@@ -5,30 +5,25 @@ lossless image formats.
 
 ![Asciinema Demo Gif](docs/demo.gif)
 
+## ✨ Features
+
+- **Mandatory Encryption** - Your secrets are not only hidden, they are encrypted.
+- **Stored in Scrambled Order** - Makes detection even harder, and brute force virtually impossible.
+- **Customizable Bitmask** - Allows for multiple payloads, better stealth in some color contexts, and variable capacity.
+- **Designed for Lossless Formats** - Images can be converted between any present or future format and still work.
+- **Single Binary** - With convenient CLI usage for Linux and macOS.
+
 ## 📜 Documentation
 
 - [**CLI User Guide**](docs/cli_userguide.md) - Describes the CLI arguments and exemplifies common use-cases
 - [**Algorithm Specification**](docs/algorithm.md) - Describes implementation steps.
 - [**Security**](docs/security.md) - Comments on robustness.
 - [**Party Tricks**](docs/party_tricks.md) - Examples of bonus niche uses.
-
-## 📚 Lore 
-
-**When did this start?**
-
-The first time I implemented this was back in 2017 for my bachelor's thesis.
-Back then it was a Windows GUI app written in C# and WPF.
-I've since learned my lesson, so this is an homage to the memory, and a rewrite as a Kotlin Native CLI that does *not*
-support Windows.
-
-**Why the name?**
-
-_"Steko"_ is a portmanteau of steganography and Kotlin.
-No clever pun here!
+- [**F.A.Q.**](docs/faq.md) - Frequently asked questions.
 
 ## ⚖️ License
 
-Copyright © 2026 Dan Cristian Cîmpianu
+Copyright © 2026 Dan Cîmpianu
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
