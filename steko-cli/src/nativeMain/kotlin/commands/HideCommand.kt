@@ -113,7 +113,15 @@ class HideCommand : CliktCommand("hide") {
     }
 
     private fun getKey(): Key {
-        if (encodingOptions.usePassphrase.not()) return Key.generate(encodingOptions.bitmask)
+        if (!encodingOptions.useKey && !encodingOptions.usePassphrase) {
+            return Key.generate(encodingOptions.bitmask)
+        }
+
+        if(encodingOptions.useKey) {
+            if(terminal.terminalInfo.inputInteractive) throw UsageError("No input given to STDIN.")
+            val value = readlnOrNull() ?: exitError("Could not get credential.")
+            return Key(value)
+        }
 
         val value = when {
             terminal.terminalInfo.interactive -> ConfirmationPrompt.createString(

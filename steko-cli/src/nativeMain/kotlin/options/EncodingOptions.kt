@@ -27,6 +27,14 @@ class EncodingOptions : OptionGroup(
         """.trimIndent(),
     ).nullableFlag().default(false)
 
+    val useKey: Boolean by option(
+        "-k", "--key",
+        help = """
+            Reuse an existing key instead of generating a new random one.
+            The key is read from _STDIN_ in hexadecimal format.
+        """.trimIndent()
+    ).nullableFlag().default(false)
+
     val bitmask: Int by option(
         "-b", "--bitmask",
         help = """
@@ -72,8 +80,16 @@ class EncodingOptions : OptionGroup(
     ) {
         super.finalize(context, invocationsByOption)
         val info = context.terminal.theme.info
-        if (usePassphrase && bitmask != DEFAULT_BITMASK) {
-            throw UsageError("Cannot set a custom ${info("--bitmask")} when using a ${info("--passphrase")}!")
+        if(bitmask != DEFAULT_BITMASK) {
+            if(usePassphrase) {
+                throw UsageError("Cannot set a custom ${info("--bitmask")} when using a ${info("--passphrase")}.")
+            }
+            if(useKey) {
+                throw UsageError("Cannot change the ${info("--bitmask")} when reusing a ${info("--key")}.")
+            }
+        }
+        if(usePassphrase && useKey) {
+            throw UsageError("Options ${info("--passphrase")} and ${info("--key")} are incompatible.")
         }
     }
 
