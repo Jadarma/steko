@@ -73,7 +73,7 @@ class EncodingOptions : OptionGroup(
         """.trimIndent()
     ).nullableFlag().default(false)
 
-    @Suppress("ExceptionRaisedInUnexpectedLocation")
+    @Suppress("ExceptionRaisedInUnexpectedLocation", "ThrowsCount")
     override fun finalize(
         context: Context,
         invocationsByOption: Map<Option, List<OptionInvocation>>,

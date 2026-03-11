@@ -64,20 +64,20 @@ class ImageFileOptions : OptionGroup(
         if (editFile != null) {
             if (inputFile != null || outputFile != null) {
                 throw UsageError(
-                    "the ${info("--edit")} flag cannot be used together with " +
-                            "${info("--in")} and ${info("--out")}",
+                    "The ${info("--edit")} flag cannot be used together with " +
+                            "${info("--in")} and ${info("--out")}.",
                 )
             }
         } else {
             if (inputFile == null) {
-                throw UsageError("must specify an input image with ${info("--in")} or ${info("--edit")}")
+                throw UsageError("Must specify an input image with ${info("--in")} or ${info("--edit")}.")
             }
             if (outputFile == null) {
-                throw UsageError("must specify an output image with ${info("--out")}")
+                throw UsageError("Must specify an output image with ${info("--out")}.")
             }
             if (inputFile == outputFile) {
                 throw UsageError(
-                    "setting ${info("--in")} and ${info("--out")} to same path is considered an error. " +
+                    "Setting ${info("--in")} and ${info("--out")} to same path is considered an error. " +
                             "Did you mean to use ${info("--edit")}?",
                 )
             }
@@ -85,8 +85,8 @@ class ImageFileOptions : OptionGroup(
         if (input.extension !in setOf("png", "rgba")) {
             throw UsageError("Unknown file extension, must be either PNG or RGBA.")
         }
-        if (input.extension != output.extension) {
-            throw UsageError("The ${info("--in")} and ${info("--out")} formats must match.")
+        if (input.extension == "rgba" && output.extension != "rgba") {
+            throw UsageError("When ${info("--in")} is an .rgba file, so must ${info("--out")}.")
         }
 
         val fileSystem = context.findObject<FileSystem>("fs") ?: error("No filesystem configured")

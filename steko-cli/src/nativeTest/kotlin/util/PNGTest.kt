@@ -8,8 +8,8 @@ import io.kotest.matchers.shouldBe
 
 class PNGTest : FunSpec({
 
-        val rgbaImage = decodeFromRgba(Resource("formats/image.rgba").readBytes(), 512 to 512)
-        val pngFile = Resource("formats/image.png").readBytes()
+        val rgbaImage = decodeFromRgba(Resource("images/image.rgba").readBytes(), 512 to 512)
+        val pngFile = Resource("images/image.png").readBytes()
 
         test("Can encode") {
             rgbaImage.encodeToPng() contentEquals pngFile shouldBe true

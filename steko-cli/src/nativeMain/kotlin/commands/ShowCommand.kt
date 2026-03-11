@@ -126,11 +126,8 @@ class ShowCommand : CliktCommand() {
                     .prompt("Enter a passphrase", hideInput = true)
                     .also { echo() }
 
-            terminal.terminalInfo.inputInteractive ->
-                throw UsageError("No $target given to STDIN.")
-
             else -> readlnOrNull()
-        } ?: exitError("Could not read $target.")
+        } ?: exitError("Could not read $target from STDIN.")
 
         return runCatching {
             if (usePassphrase) Key.generateBlocking(value) else Key(value)

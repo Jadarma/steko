@@ -79,7 +79,7 @@ class HideCommand : CliktCommand("hide") {
         }
         if (encodingOptions.rawPayload) {
             if (message != null) {
-                throw UsageError("The ${info("--message")} and ${info("--raw")} options are incompatible.")
+                throw UsageError("Options ${info("--message")} and ${info("--raw")} are incompatible.")
             }
             if (attachments.size != 1) {
                 throw UsageError("When ${info("--raw")} mode is used, exactly one attachment argument is required.")
