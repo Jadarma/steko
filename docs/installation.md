@@ -54,10 +54,17 @@ For permanent installation, add the flake to your inputs and load the respective
 ```nix
 {
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-        nix-darwin.url = "github:nix-darwin/nix-darwin/master";
-        nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
-        steko.url = "github:Jadarma/steko";
+        nixpkgs = {
+            url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        };
+        nix-darwin = {
+            url = "github:nix-darwin/nix-darwin/master";
+            inputs.nixpkgs.follows = "nixpkgs";     
+        };
+        steko = { 
+            url = "github:Jadarma/steko";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
     
     outputs = inputs@{ self, nixpkgs, nix-darwin, steko, ... }: {
