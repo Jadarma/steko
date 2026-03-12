@@ -3,65 +3,64 @@ kotlin = "2.3.10"               # https://mvnrepository.com/artifact/org.jetbrai
 kotlin-serialization = "1.10.0" # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 kotlin-coroutines = "1.10.2"    # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
 kotlin-cryptography = "0.5.0"   # https://mvnrepository.com/artifact/dev.whyoleg.cryptography/cryptography-core
-kotlin-io = "0.8.2"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
+kotlin-io = "0.9.0"             # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-io-core
 clikt = "5.1.0"                 # https://mvnrepository.com/artifact/com.github.ajalt.clikt/clikt
 
-kotest = "6.1.5"                # https://mvnrepository.com/artifact/io.kotest/kotest-framework-engine
-ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
-kotlin-testResources = "0.15.0" # https://mvnrepository.com/artifact/com.goncalossilva/resources
-detekt = "2.0.0-alpha.2"        # https://mvnrepository.com/artifact/dev.detekt/detekt-gradle-plugin
+buildConfig = "6.0.9"           # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
+detekt = "2.0.0-alpha.2"        # https://plugins.gradle.org/plugin/dev.detekt
+kotest = "6.1.6"                # https://plugins.gradle.org/plugin/io.kotest
 kotlin-binaryCompat = "0.18.1"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx.binary-compatibility-validator/org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin
-buildConfig = "6.0.8"           # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
+kotlin-testResources = "0.15.0" # https://plugins.gradle.org/plugin/com.goncalossilva.resources
+ksp = "2.3.6"                   # https://mvnrepository.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin/versions?repo=central
 toolchains = "1.0.0"            # https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
 
 [libraries]
+clikt-core = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+clikt-markdown = { module = "com.github.ajalt.clikt:clikt-markdown", version.ref = "clikt" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "kotlin-cryptography" }
 kotlin-cryptography-optimalProvider = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "kotlin-cryptography" }
 kotlin-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlin-io" }
-kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
 kotlin-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlin-serialization" }
+kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
 kotlin-testResources = { module = "com.goncalossilva:resources", version.ref = "kotlin-testResources" }
-kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
-kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
-clikt-core = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
-clikt-markdown = { module = "com.github.ajalt.clikt:clikt-markdown", version.ref = "clikt" }
 
+gradlePluginDep-buildConfig = { module = "com.github.gmazzo.buildconfig:com.github.gmazzo.buildconfig.gradle.plugin", version.ref = "buildConfig" }
+gradlePluginDep-detekt = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
+gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
+gradlePluginDep-kotest = { module = "io.kotest:io.kotest.gradle.plugin", version.ref = "kotest" }
+gradlePluginDep-kotlin-binaryCompat = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "kotlin-binaryCompat" }
 gradlePluginDep-kotlin-multiplatform = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
 gradlePluginDep-kotlin-serialization = { module = "org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "kotlin" }
-gradlePluginDep-kotest = { module = "io.kotest:io.kotest.gradle.plugin", version.ref = "kotest" }
-gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.goncalossilva.resources.gradle.plugin", version.ref = "kotlin-testResources" }
 gradlePluginDep-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-gradlePluginDep-detekt = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
-gradlePluginDep-kotlin-binaryCompat = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "kotlin-binaryCompat" }
-gradlePluginDep-buildConfig = { module = "com.github.gmazzo.buildconfig:com.github.gmazzo.buildconfig.gradle.plugin", version.ref = "buildConfig" }
-gradlePluginDep-javaToolchains = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "toolchains" }
+gradlePluginDep-testResources = { module = "com.goncalossilva.resources:com.goncalossilva.resources.gradle.plugin", version.ref = "kotlin-testResources" }
 
 [bundles]
 # Bundles all plugins needed in `build-logic` so they can be imported in bulk.
 gradlePlugins = [
+    "gradlePluginDep-buildConfig",
+    "gradlePluginDep-detekt",
+    "gradlePluginDep-javaToolchains",
+    "gradlePluginDep-kotest",
+    "gradlePluginDep-kotlin-binaryCompat",
     "gradlePluginDep-kotlin-multiplatform",
     "gradlePluginDep-kotlin-serialization",
-
-    "gradlePluginDep-kotest",
-    "gradlePluginDep-testResources",
     "gradlePluginDep-ksp",
-    "gradlePluginDep-detekt",
-    "gradlePluginDep-kotlin-binaryCompat",
-    "gradlePluginDep-buildConfig",
-    "gradlePluginDep-javaToolchains",
+    "gradlePluginDep-testResources",
 ]
 
 # Plugins in precompiled build scripts are not supported by Gradle (yet?) because they would clash with the classpath.
 # They are given here to still be able to use the alias notation in root project.
 # Actual versions come from the gradlePluginDep bundle.
 [plugins]
+buildConfig = { id = "com.github.gmazzo.buildconfig" }
+detekt = { id = "dev.detekt" }
+javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }
+kotest = { id = "io.kotest" }
+kotlin-binaryCompat = { id = "org.jetbrains.kotlinx.binary-compatibility-validator" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization" }
-testResources = { id = "com.goncalossilva.resources" }
-kotest = { id = "io.kotest" }
 ksp = { id = "com.google.devtools.ksp" }
-detekt = { id = "dev.detekt" }
-kotlin-binaryCompat = { id = "org.jetbrains.kotlinx.binary-compatibility-validator" }
-buildConfig = { id = "com.github.gmazzo.buildconfig" }
-javaToolchains = { id = "org.gradle.toolchains.foojay-resolver-convention" }
+testResources = { id = "com.goncalossilva.resources" }
