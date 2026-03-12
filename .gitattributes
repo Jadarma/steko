@@ -1,2 +1,6 @@
+# Treat images as binary
 *.png binary
 *.rgba binary
+
+# Mark the nothings/STB dependencies as vendored so GitHub doesn't track them in the lanugage stats.
+steko-cli/src/nativeInterop/cinterop/stbImage/* linguist-vendored
