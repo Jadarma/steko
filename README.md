@@ -15,6 +15,7 @@ lossless image formats.
 
 ## 📜 Documentation
 
+- [**Installation**](docs/installation.md) - Instructions for downloading the binaries.
 - [**CLI User Guide**](docs/cli_userguide.md) - Describes the CLI arguments and exemplifies common use-cases
 - [**Algorithm Specification**](docs/algorithm.md) - Describes implementation steps.
 - [**Security**](docs/security.md) - Comments on robustness.
