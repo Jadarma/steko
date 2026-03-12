@@ -22,32 +22,35 @@ adversaries cannot determine even the existence of said secret.
 Supposing an adversary is convinced an image is a carrier for a steganographic payload, to prove it and extract the
 secret, two conditions must be met:
 
-1. The correct pixel order and length of the payload must be known.
+1. The correct pixel order must be known.
 2. The AES ciphertext must be decrypted.
 
 ## 🧩 Unshuffling
 
-The possible orderings of the pixels in a 12MP image is:
+The possible orderings of a 1KiB payload in the pixels of a 720p image with the default bitmask is:
 
 ```
-(3000 x 4000)! = 12.000.000! > 2^256 
+P(1280 * 720, 1024 * 8 / 3) ~= 10^16285
 ```
 
-That value is larger than the `2^256` key, and since the key is also required for decryption, the only reasonable
-approach for unshuffling is to brute-force the key.
+For comparison, the estimated atoms in the observable universe is `10^80`.
+That value is much larger than the `2^224`-ish key, and since the key is also required for decryption, the only
+reasonable approach for unshuffling is to brute-force the key, and therefore the seed.
 
 It should be noted that the PRNG used is not cryptographically secure, and in theory may be reversed if enough of the
 order is known. However, the payload at rest is entirely gibberish:
 
-- The header challenge is XOR-ing of random bits
-- The length is just a number meaningless without context
-- The payload is random-looking AES ciphertext
+- The header challenge is XOR-ing of random bits.
+- The length is just a number meaningless without context.
+- The payload is random-looking AES ciphertext.
 
-On top of that, supposing the order is known, it is difficult to determine in which state the PRNG is because it
-generates 64-bit numbers, whereas the shuffle only uses half of them and discards the rest.
+The length being too large to fit in the image is the only heuristic that could prune the search space.
 
-Finally, even if somehow the seed is determined, that is the hash of the actual key, so if random bits or very strong
-passphrases are used, obtaining them is impossible.
+Supposing the order is _(somehow)_ known, it is difficult to determine in which state the PRNG is because it generates
+64-bit numbers, whereas the algorithm only needs random 32-bit integers, and discards the rest.
+
+Finally, even if _(somehow)_ the seed is reverse-engineered, that represents the hash of the actual key, so if random
+bits or very strong passphrases are used, obtaining them is impossible.
 
 ## 🔑 Key Entropy
 

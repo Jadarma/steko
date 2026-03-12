@@ -18,7 +18,7 @@ lossless image formats.
 - [**Installation**](docs/installation.md) - Instructions for downloading the binaries.
 - [**CLI User Guide**](docs/cli_userguide.md) - Describes the CLI arguments and exemplifies common use-cases
 - [**Algorithm Specification**](docs/algorithm.md) - Describes implementation steps.
-- [**Security**](docs/security.md) - Comments on robustness.
+- [**Security**](docs/security_analysis.md) - Comments on robustness.
 - [**Party Tricks**](docs/party_tricks.md) - Examples of bonus niche uses.
 - [**F.A.Q.**](docs/faq.md) - Frequently asked questions.
 
