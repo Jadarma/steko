@@ -45,7 +45,7 @@
             homepage = repo;
             downloadPage = "${repo}/releases/tag/v${version}";
             changelog = "${repo}/releases/tag/v${version}";
-            license = lib.licenses.gpl3Only;
+            license = lib.licenses.gpl3Plus;
             mainProgram = pname;
             platforms = map lib.systems.parse.mkSystemFromString (builtins.attrNames variants);
             sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
