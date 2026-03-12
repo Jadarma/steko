@@ -22,6 +22,35 @@ lossless image formats.
 - [**Party Tricks**](docs/party_tricks.md) - Examples of bonus niche uses.
 - [**F.A.Q.**](docs/faq.md) - Frequently asked questions.
 
+## 👉 Example
+
+<img style="float: left; margin-right: 2em; aspect-ratio: auto; max-width: 33%; max-height: 512px; " src="docs/example.png" alt="Shakespeare hiding behind Mona Lisa">
+
+This image of _Mona Lisa_ also contains the complete works of William Shakespeare.
+_(Talk about multiculturalism!)_
+
+- Original Image: [Mona Lisa, by Leonardo da Vinci, from C2RMF, 1374 x 2048 pixels](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1920px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg), converted to PNG, _(11.8 MiB)_
+- Payload: [The Complete Works of William Shakespeare, EPUB3 by Project Gutenberg](https://www.gutenberg.org/ebooks/100), _(2.8 MiB)_
+- Key: `03010300f3e33a394b6f4643debff21a571be07326a381501c2b62105a69034d`
+- Modified Image: [Here](docs/example.png), _(12.5 MiB)_
+
+Try it out:
+
+```shell
+steko show -o /tmp docs/example.png <<< '03010300f3e33a394b6f4643debff21a571be07326a381501c2b62105a69034d' 
+```
+
+Should produce:
+
+```text
+To hide or not to hide, that is the question!
+───────────────────────────────────────────────────────────────────────────────
+Extracted Attachments (1):
+ • shakespeare.epub (2MiB)
+```
+
+<div style="clear: both;"></div>
+
 ## ⚖️ License
 
 Copyright © 2026 Dan Cîmpianu
