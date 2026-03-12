@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.target.Architecture
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.util.visibleName
 
 plugins {
@@ -24,8 +26,20 @@ kotlin {
             }
         }
         target.binaries.executable {
-            baseName = with(target.konanTarget) { "steko-${family.visibleName}-${architecture.visibleName}" }
-            entryPoint = "$group.cli.main"
+            entryPoint = "${CompileOptions.GROUP}.cli.main"
+            baseName = with(target.konanTarget) {
+                val arch = when(architecture) {
+                    Architecture.ARM64 -> "aarch64"
+                    Architecture.X64 -> "x86_64"
+                    else -> error("Unsupported architecture: $architecture")
+                }
+                val system = when(family) {
+                    Family.LINUX -> "linux"
+                    Family.OSX -> "darwin"
+                    else -> error("Unsupported OS family: $family")
+                }
+                "steko-${arch}-${system}"
+            }
         }
     }
 
