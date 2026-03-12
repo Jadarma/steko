@@ -24,15 +24,18 @@ lossless image formats.
 
 ## 👉 Example
 
-<img style="float: left; margin-right: 2em; aspect-ratio: auto; max-width: 33%; max-height: 512px; " src="docs/example.png" alt="Shakespeare hiding behind Mona Lisa">
+<img width="340px" align="left" style="margin-right: 2em" src="docs/example.png" alt="Shakespeare hiding behind Mona Lisa">
 
-This image of _Mona Lisa_ also contains the complete works of William Shakespeare.
+This image of _Mona Lisa_ also contains within it the complete works of William Shakespeare.
 _(Talk about multiculturalism!)_
 
-- Original Image: [Mona Lisa, by Leonardo da Vinci, from C2RMF, 1374 x 2048 pixels](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1920px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg), converted to PNG, _(11.8 MiB)_
+- Original Image:
+  [Mona Lisa, by Leonardo da Vinci](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1920px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg),
+  from [C2RMF via Wikimedia](https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg)
+  _(converted to PNG, 1920 x 2861 pixels, 11.8 MiB)_
 - Payload: [The Complete Works of William Shakespeare, EPUB3 by Project Gutenberg](https://www.gutenberg.org/ebooks/100), _(2.8 MiB)_
-- Key: `03010300f3e33a394b6f4643debff21a571be07326a381501c2b62105a69034d`
-- Modified Image: [Here](docs/example.png), _(12.5 MiB)_
+- Bitmask: 2R/1G/2B, 5 / 24 total bits overwritten.
+- Modified Image: [Full-Size Here](docs/example.png), _(12.5 MiB)_
 
 Try it out:
 
@@ -44,7 +47,7 @@ Should produce:
 
 ```text
 To hide or not to hide, that is the question!
-───────────────────────────────────────────────────────────────────────────────
+─────────────────────────────────────────────────
 Extracted Attachments (1):
  • shakespeare.epub (2MiB)
 ```
