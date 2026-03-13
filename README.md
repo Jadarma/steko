@@ -1,5 +1,9 @@
 # Steko
 
+[![GitHub Release](https://img.shields.io/github/v/release/Jadarma/steko?include_prereleases&sort=semver&display_name=release&style=flat-square&logo=gitlfs&logoColor=%23F05032&label=Release&labelColor=%23181717&color=%23F05032)](https://github.com/Jadarma/steko/releases)
+[![Flake](https://img.shields.io/badge/nix-Flake-%235277C3?style=flat-square&logo=nixos&label=Nix&labelColor=%23181717)](docs/installation.md#-nix)
+[![GitHub License](https://img.shields.io/github/license/Jadarma/steko?style=flat-square&logo=opensourceinitiative&logoColor=%233DA639&label=License&labelColor=%23181717&color=%233DA639)](LICENSE.md)
+
 A simple and secure steganography tool using AES, the LSB method and pseudorandom pixel order to hide payloads in
 lossless image formats.
 
