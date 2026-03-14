@@ -40,13 +40,13 @@ This repository is also available as a flake for use with [Nix](https://nix.dev/
 You can temporarily add Steko to your shell and play around:
 
 ```shell
-nix shell https://github.com/Jadarma/steko
+nix shell github:Jadarma/steko
 ```
 
 You can also execute the binary directly for one run, without installation:
 
 ```shell 
-nix run https://github.com/Jadarma/steko -- 'args go here'
+nix run github:Jadarma/steko -- 'args go here'
 ```
 
 For permanent installation, add the flake to your inputs and load the respective module:
