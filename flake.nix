@@ -23,6 +23,9 @@
           lib,
           stdenv,
           fetchurl,
+          autoPatchelfHook,
+          zlib,
+          libgcc,
         }:
         stdenv.mkDerivation {
           inherit pname version;
@@ -33,6 +36,15 @@
           };
 
           dontUnpack = true;
+
+          nativeBuildInputs = [
+            autoPatchelfHook
+          ];
+
+          buildInputs = [
+            zlib
+            libgcc
+          ];
 
           installPhase = ''
             mkdir -p $out/bin
