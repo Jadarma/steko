@@ -37,11 +37,11 @@
 
           dontUnpack = true;
 
-          nativeBuildInputs = [
+          nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
             autoPatchelfHook
           ];
 
-          buildInputs = [
+          buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
             zlib
             libgcc
           ];
